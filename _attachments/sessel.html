@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Sessel</title>
+    <script type="text/javascript" src="../../../_utils/script/jquery.js"></script>
+    <style type="text/css">
+      input[type=text] {
+        width: 350px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sessel</h1>
+    <p>Browsers are really bad at parsing big files, so you should better keep your queries small.</p>
+    <div>
+        Subject:
+        <input id="subject" type="text" />
+    </div>
+    <div>
+        Predicate:
+        <input id="predicate" type="text" />
+    </div>
+    <div>
+        Object:
+        <select id="objectType">
+          <option value="uri">URI</option>
+          <option value="lit">Literal</option>
+        </select>
+        <input id="object" type="text" />
+    </div>
+    <div>
+        <input id="query" type="submit" value="Query" />
+    </div>
+    <div id="result">
+    </div>
+  </body>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#query').click(function() {
+        var subject = encodeURIComponent($('#subject').val());
+        var predicate = encodeURIComponent($('#predicate').val());
+        var objectType = $('#objectType').val();
+        var object = encodeURIComponent($('#object').val());
+        var query = '_rewrite';
+        if (subject != '') {
+          query += '/s/' + subject;
+        }
+        if (predicate != '') {
+          query += '/p/' + predicate;
+        }
+        if (object != '') {
+          query += '/o/' + objectType + '/' + object;
+        }
+        console.log(query);
+        $.get(query, function(result) {
+          $('#result').empty().html('<h2>Result</h2>' + result);
+        });
+        return false;
+      });
+    });
+  </script>
+<html>

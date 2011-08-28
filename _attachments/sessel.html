@@ -8,11 +8,13 @@
       input[type=text] {
         width: 350px;
       }
+      #spinner {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <h1>Sessel</h1>
-    <p>Browsers are really bad at parsing big files, so you should better keep your queries small.</p>
     <div>
         Subject:
         <input id="subject" type="text" />
@@ -31,6 +33,7 @@
     </div>
     <div>
         <input id="query" type="submit" value="Query" />
+        <img id="spinner" src="../../../_utils/image/spinner.gif" />
     </div>
     <div id="result">
     </div>
@@ -38,6 +41,7 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#query').click(function() {
+        $('#spinner').show();
         var subject = encodeURIComponent($('#subject').val());
         var predicate = encodeURIComponent($('#predicate').val());
         var objectType = $('#objectType').val();
@@ -52,9 +56,9 @@
         if (object != '') {
           query += '/o/' + objectType + '/' + object;
         }
-        console.log(query);
         $.get(query, function(result) {
           $('#result').empty().html('<h2>Result</h2>' + result);
+          $('#spinner').hide();
         });
         return false;
       });

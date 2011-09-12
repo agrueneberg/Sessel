@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Import</title>
+    </head>
+    <body>
+        <strong>Please choose a NT file to import:</strong><br />
+        <input type="file" id="file" />
+        <input type="button" value="Load file" onclick="dump();" />
+        <script type="text/javascript">
+            var dump = function() {
+                toggleSpinner();
+                var file = document.getElementById('file').files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = function(event) {
+                        var payload = event.target.result;
+                        var worker = new Worker('scripts/import-worker.js');
+                        worker.onmessage = function(message) {
+                            if (message.data === 0) {
+                                alert('Dump complete.');
+                            } else {
+                                alert('Something went wrong.');
+                            }
+                            toggleSpinner();
+                        };
+                        worker.postMessage(payload);
+                    };
+                } else {
+                    toggleSpinner();
+                    alert('Please provide a NT file.');
+                }
+            };
+            var toggleSpinner = function() {
+                var spinner = document.getElementById('spinner');
+                if (!spinner) {
+                    spinner = document.createElement('img');
+                    spinner.setAttribute('src', location.origin + '/_utils/image/spinner.gif');
+                    spinner.setAttribute('id', 'spinner');
+                    spinner.setAttribute('style', 'display: show');
+                    document.body.appendChild(spinner);
+                } else {
+                    if (spinner.getAttribute('style').indexOf('none') === -1) {
+                        spinner.setAttribute('style', 'display: none');
+                    } else {
+                        spinner.setAttribute('style', 'display: show');
+                    }
+                }
+            };
+        </script>
+    </body>
+</html>

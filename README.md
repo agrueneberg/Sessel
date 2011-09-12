@@ -1,7 +1,7 @@
 Sessel
 ======
 
-Sessel is a cross-indexed RDF store for [CouchDB](http://couchdb.apache.org) featuring an RDF query engine, export to various RDF serialization formats, and a simple permission management.
+Sessel is a cross-indexed RDF store for [CouchDB](http://couchdb.apache.org) featuring an RDF query engine, import of and export to various RDF serialization formats, and a simple permission management.
 
 Installation
 ------------
@@ -43,6 +43,12 @@ There is graphical query interface in the browser for testing purposes that take
 ### Examples
 
 * Query all triples having the subject `http://example.com/rdf/testSubject`: `_design/sessel/_rewrite/s/http%3A%2F%2Fexample.com%2Frdf%2FtestSubject`
+
+
+Import
+------
+
+A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`
 
 
 Export

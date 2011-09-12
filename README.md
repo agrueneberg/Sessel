@@ -38,7 +38,7 @@ Each of the following elements can be appended to the URL once in any order to f
 
 URIs have to be **URI encoded** (in JavaScript `encodeURIComponent` can be used).
 
-There is graphical query interface in the browser for testing purposes that takes care of URI encoding: `_design/sessel/sessel.html`
+There is graphical query interface in the browser for testing purposes that takes care of URI encoding: `_design/sessel/query.html`
 
 ### Examples
 

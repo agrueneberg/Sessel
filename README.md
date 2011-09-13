@@ -49,6 +49,7 @@ Import
 ------
 
 A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`
+`tcga.nt` (Deus, H.F. et al. 2010. Exposing the cancer genome atlas as a SPARQL endpoint. Journal of Biomedical Informatics 43, 998-1008) in the `resources` directory serves as an example dataset.
 
 
 Export

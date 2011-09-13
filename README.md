@@ -6,7 +6,7 @@ Sessel is a cross-indexed RDF store for [CouchDB](http://couchdb.apache.org) fea
 Installation
 ------------
 
-Use [CouchApp](http://couchapp.org) to push Sessel to CouchDB.
+Use [CouchApp](http://couchapp.org) to push Sessel to CouchDB or replicate [an existing deployment of Sessel](http://agrueneberg.iriscouch.com/sessel/).
 
 
 Document Format
@@ -48,8 +48,7 @@ There is graphical query interface in the browser for testing purposes that take
 Import
 ------
 
-A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`
-`tcga.nt` (Deus, H.F. et al. 2010. Exposing the cancer genome atlas as a SPARQL endpoint. Journal of Biomedical Informatics 43, 998-1008) in the `resources` directory serves as an example dataset.
+A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`. `tcga.nt` (Deus, H.F. et al. 2010. Exposing the cancer genome atlas as a SPARQL endpoint. Journal of Biomedical Informatics 43, 998-1008) in the `resources` directory serves as an example dataset.
 
 
 Export

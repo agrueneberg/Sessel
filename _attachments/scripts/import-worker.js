@@ -1,16 +1,43 @@
 onmessage = function(message) {
     var docs = [];
-    var ntRegex = /(<[^>]+>) (<[^>]+>) ((?:<[^>]+>)|(?:\"[^\"]+\")) ./;
-    var rows = message.data.split('\n').filter(function(field) {
-        // Skip empty rows
-        if (field.length > 0) {
-            return field;
-        }
-    });
+    // Parser for N-Triples (http://www.w3.org/2001/sw/RDFCore/ntriples)
+    // Blank nodes are not covered because Sessel does not support them yet.
+    // RFC 2396 does not mention how to deal with ">" characters in URIs,
+    // therefore we will take what we get and do the validation in the next step.
+    //
+    // Documentation:
+    // ^
+    // \s*
+    // (?:
+    //   (?#Comment)
+    //     #
+    //     [\x20-\x7E]*
+    // |
+    //   (?#Subject URI)
+    //     (<[^>]+>)
+    //   \s+
+    //   (?#Predicate URI)
+    //     (<[^>]+>)
+    //   \s+
+    //   (
+    //     (?#Object URI)
+    //       <[^>]+>
+    //   |
+    //     (?#Object literal in the range of printable characters)
+    //       "[\x20-\x7E]*"
+    //   )
+    //   \s*
+    //   \.
+    //   \s*
+    // )?
+    // $
+    var nTriplesPattern = /^\s*(?:#[\x20-\x7E]*|(<[^>]+>)\s+(<[^>]+>)\s+(<[^>]+>|"[\x20-\x7E]*")\s*\.\s*)?$/;
+    var rows = message.data.split('\n');
     rows.forEach(function(row) {
         var doc = {};
-        var matcher = row.match(ntRegex);
-        if (matcher !== null) {
+        var matcher = row.match(nTriplesPattern);
+        // Skip comments and empty lines
+        if (matcher !== null && !(matcher[1] === undefined && matcher[2] === undefined && matcher[3] === undefined)) {
             doc['subject'] = matcher[1].substring(1, matcher[1].length - 1)
             doc['predicate'] = matcher[2].substring(1, matcher[2].length - 1)
             if (matcher[3].indexOf('<') === 0) {

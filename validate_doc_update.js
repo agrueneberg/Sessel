@@ -11,29 +11,29 @@ function(newDoc, savedDoc, userCtx) {
   var uriRegEx = /([a-zA-Z][a-zA-Z0-9\+\-\.]*:((((\/\/((((([a-zA-Z0-9\-_\.!\~\*'\(\);:\&=\+$,]|(%[a-fA-F0-9]{2}))*)\@)?((((([a-zA-Z0-9](([a-zA-Z0-9\-])*[a-zA-Z0-9])?)\.)*([a-zA-Z](([a-zA-Z0-9\-])*[a-zA-Z0-9])?)(\.)?)|([0-9]+((\.[0-9]+){3})))(:[0-9]*)?))?|([a-zA-Z0-9\-_\.!\~\*'\(\)$,;:\@\&=\+]|(%[a-fA-F0-9]{2}))+)(\/(([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*(;([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)*)(\/(([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*(;([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)*))*)?)|(\/(([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*(;([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)*)(\/(([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*(;([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)*))*))(\?([a-zA-Z0-9\-_\.!\~\*'\(\);/\?:\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)?)|(([a-zA-Z0-9\-_\.!\~\*'\(\);\?:\@\&=\+$,]|(%[a-fA-F0-9]{2}))([a-zA-Z0-9\-_\.!\~\*'\(\);/\?:\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)))?(\#([a-zA-Z0-9\-_\.!\~\*'\(\);/\?:\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)?/
 
   // Handle creation and updates of documents.
-  if (!newDoc.subject) {
+  if (newDoc.subject === undefined) {
     throw {
       forbidden: 'subject is required'
     }
   }
-  if (!newDoc.subject.match(uriRegExp)) {
+  if (!newDoc.subject.match(uriRegEx)) {
     throw {
       forbidden: 'subject has to be a URI'
     }
   }
 
-  if (!newDoc.predicate) {
+  if (newDoc.predicate === undefined) {
     throw {
       forbidden: 'predicate is required'
     }
   }
-  if (!newDoc.predicate.match(uriRegExp)) {
+  if (!newDoc.predicate.match(uriRegEx)) {
     throw {
       forbidden: 'predicate has to be a URI'
     }
   }
 
-  if (!newDoc.object) {
+  if (newDoc.object === undefined) {
     throw {
       forbidden: 'object is required'
     }
@@ -48,14 +48,9 @@ function(newDoc, savedDoc, userCtx) {
       forbidden: 'type of the object has to be either "URI" or "Literal"' + " not " + newDoc.object.type
     }
   }
-  if (newDoc.object_type === 'URI' && !newDoc.object.match(uriRegExp)) {
+  if (newDoc.object_type === 'URI' && !newDoc.object.match(uriRegEx)) {
     throw {
       forbidden: 'object is not a valid URI'
-    }
-  }
-  if (newDoc.object_type === 'Literal' && !newDoc.object) {
-    throw {
-      forbidden: 'object is not a valid literal'
     }
   }
 

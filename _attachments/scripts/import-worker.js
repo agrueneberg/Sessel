@@ -9,7 +9,7 @@ onmessage = function(message) {
     // ^
     // \s*
     // (?:
-    //   (?#Comment)
+    //   (?#Comment in the range of printable characters)
     //     #
     //     [\x20-\x7E]*
     // |

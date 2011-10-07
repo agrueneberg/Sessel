@@ -29,9 +29,17 @@ onmessage = function(message) {
         var body = {'docs' : docs};
         req.onreadystatechange = function() {
             if (req.readyState == 4) {
+                var responseObject = JSON.parse(req.responseText);
+                var insertedDocuments = 0;
+                responseObject.forEach(function(doc) {
+                    // If there is a rev attribute, the document was inserted successfully.
+                    if (doc.rev) {
+                        insertedDocuments++;
+                    }
+                });
                 postMessage({
                     code: 0,
-                    msg: 'Imported ' + docs.length + ' triples.'
+                    msg: 'Imported ' + insertedDocuments + ' of ' + docs.length + ' triples.'
                 });
             }
         };

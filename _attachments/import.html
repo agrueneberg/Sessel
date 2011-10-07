@@ -4,7 +4,7 @@
         <title>Import</title>
     </head>
     <body>
-        <strong>Please choose a NT file to import:</strong><br />
+        <strong>Please choose a <a href="http://www.w3.org/TR/rdf-testcases/#ntriples">N-Triples</a> file without blank nodes to import:</strong><br />
         <input type="file" id="file" />
         <input type="button" value="Load file" onclick="dump();" />
         <script type="text/javascript">
@@ -29,7 +29,7 @@
                     };
                 } else {
                     toggleSpinner();
-                    alert('Please provide a NT file.');
+                    alert('Please provide a N-Triples file.');
                 }
             };
             var toggleSpinner = function() {

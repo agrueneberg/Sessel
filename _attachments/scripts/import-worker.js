@@ -29,13 +29,18 @@ onmessage = function(message) {
         var body = {'docs' : docs};
         req.onreadystatechange = function() {
             if (req.readyState == 4) {
-                postMessage(0);
+                postMessage({
+                    code: 0,
+                    msg: 'Imported ' + docs.length + ' triples.'
+                });
             }
         };
         req.open('POST', url + '_bulk_docs');
         req.setRequestHeader('Content-Type', 'application/json');
         req.send(JSON.stringify(body));
     } else {
-        postMessage(1);
+        postMessage({
+            code: 1
+        });
     }
 };

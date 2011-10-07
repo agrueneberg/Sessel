@@ -18,8 +18,8 @@
                         var payload = event.target.result;
                         var worker = new Worker('scripts/import-worker.js');
                         worker.onmessage = function(message) {
-                            if (message.data === 0) {
-                                alert('Dump complete.');
+                            if (message.data.code === 0) {
+                                alert(message.data.msg);
                             } else {
                                 alert('Something went wrong.');
                             }

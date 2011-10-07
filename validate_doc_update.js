@@ -5,8 +5,10 @@ function(newDoc, savedDoc, userCtx) {
     return true;
   }
 
-  // Regular expression for URI validation (see http://snipplr.com/view/6889/regular-expressions-for-uri-validationparsing for more information).
-  var uriRegExp = /^(?:([a-z0-9+.-]+:\/\/)((?:(?:[a-z0-9-._~!$&'()*+,;=:]|%[0-9A-F]{2})*)@)?((?:[a-z0-9-._~!$&'()*+,;=]|%[0-9A-F]{2})*)(:(?:\d*))?(\/(?:[a-z0-9-._~!$&'()*+,;=:@\/]|%[0-9A-F]{2})*)?|([a-z0-9+.-]+:)(\/?(?:[a-z0-9-._~!$&'()*+,;=:@]|%[0-9A-F]{2})+(?:[a-z0-9-._~!$&'()*+,;=:@\/]|%[0-9A-F]{2})*)?)(\?(?:[a-z0-9-._~!$&'()*+,;=:\/?@]|%[0-9A-F]{2})*)?(#(?:[a-z0-9-._~!$&'()*+,;=:\/?@]|%[0-9A-F]{2})*)?$/i;
+  // Regular expression to validate URIs based on the BNF in Appendix A of RFC 2396 (the one given in Appendix B of RFC 2396 is a joke).
+  // Thanks to Tim Myer for converting the BNF into a regular expression: http://timezra.blogspot.com/2010/05/regex-to-validate-uris.html
+  // The support for relative URIs was removed to conform with "RDF: Concepts and Abstract Syntax" and forward slashes were escaped.
+  var uriRegEx = /([a-zA-Z][a-zA-Z0-9\+\-\.]*:((((\/\/((((([a-zA-Z0-9\-_\.!\~\*'\(\);:\&=\+$,]|(%[a-fA-F0-9]{2}))*)\@)?((((([a-zA-Z0-9](([a-zA-Z0-9\-])*[a-zA-Z0-9])?)\.)*([a-zA-Z](([a-zA-Z0-9\-])*[a-zA-Z0-9])?)(\.)?)|([0-9]+((\.[0-9]+){3})))(:[0-9]*)?))?|([a-zA-Z0-9\-_\.!\~\*'\(\)$,;:\@\&=\+]|(%[a-fA-F0-9]{2}))+)(\/(([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*(;([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)*)(\/(([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*(;([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)*))*)?)|(\/(([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*(;([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)*)(\/(([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*(;([a-zA-Z0-9\-_\.!\~\*'\(\):\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)*))*))(\?([a-zA-Z0-9\-_\.!\~\*'\(\);/\?:\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)?)|(([a-zA-Z0-9\-_\.!\~\*'\(\);\?:\@\&=\+$,]|(%[a-fA-F0-9]{2}))([a-zA-Z0-9\-_\.!\~\*'\(\);/\?:\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)))?(\#([a-zA-Z0-9\-_\.!\~\*'\(\);/\?:\@\&=\+$,]|(%[a-fA-F0-9]{2}))*)?/
 
   // Handle creation and updates of documents.
   if (!newDoc.subject) {

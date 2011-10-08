@@ -1,17 +1,31 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Import</title>
+        <script type="text/javascript" src="../../../_utils/script/jquery.js"></script>
+        <style type="text/css">
+            #spinner {
+                display: none;
+            }
+        </style>
     </head>
     <body>
-        <strong>Please choose a <a href="http://www.w3.org/TR/rdf-testcases/#ntriples">N-Triples</a> file without blank nodes to import:</strong><br />
-        <input type="file" id="file" />
-        <input type="button" value="Load file" onclick="importTriples();" />
-        <script type="text/javascript">
-            var importTriples, toggleSpinner;
-            importTriples = function () {
+        <h2>Import</h2>
+        <strong>Please choose an <a href="http://www.w3.org/TR/rdf-testcases/#ntriples">N-Triples</a> file without blank nodes to import.</strong><br />
+        <div>
+            <input type="file" id="file" />
+        </div>
+        <div>
+            <input id="import" type="button" value="Import triples" />
+            <img id="spinner" src="../../../_utils/image/spinner.gif" />
+        </div>
+    </body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#import').click(function () {
                 var file, reader;
-                toggleSpinner();
+                $('#spinner').show();
                 file = document.getElementById('file').files[0];
                 if (file) {
                     reader = new FileReader();
@@ -26,32 +40,15 @@
                             } else {
                                 alert('Something went wrong.');
                             }
-                            toggleSpinner();
+                            $('#spinner').hide();
                         };
                         worker.postMessage(payload);
                     };
                 } else {
-                    toggleSpinner();
-                    alert('Please provide a N-Triples file.');
+                    $('#spinner').hide();
+                    alert('Please provide an N-Triples file.');
                 }
-            };
-            toggleSpinner = function () {
-                var spinner;
-                spinner = document.getElementById('spinner');
-                if (!spinner) {
-                    spinner = document.createElement('img');
-                    spinner.setAttribute('src', location.origin + '/_utils/image/spinner.gif');
-                    spinner.setAttribute('id', 'spinner');
-                    spinner.setAttribute('style', 'display: show');
-                    document.body.appendChild(spinner);
-                } else {
-                    if (spinner.getAttribute('style').indexOf('none') === -1) {
-                        spinner.setAttribute('style', 'display: none');
-                    } else {
-                        spinner.setAttribute('style', 'display: show');
-                    }
-                }
-            };
-        </script>
-    </body>
+            });
+        });
+    </script>
 </html>

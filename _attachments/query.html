@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>Sessel</title>
+        <title>Query</title>
         <script type="text/javascript" src="../../../_utils/script/jquery.js"></script>
         <style type="text/css">
             input[type=text] {
@@ -14,26 +14,26 @@
         </style>
     </head>
     <body>
-        <h1>Sessel</h1>
+        <h2>Query</h2>
         <div>
-                Subject:
-                <input id="subject" type="text" />
+            Subject:
+            <input id="subject" type="text" />
         </div>
         <div>
-                Predicate:
-                <input id="predicate" type="text" />
+            Predicate:
+            <input id="predicate" type="text" />
         </div>
         <div>
-                Object:
-                <select id="objectType">
-                    <option value="uri">URI</option>
-                    <option value="lit">Literal</option>
-                </select>
-                <input id="object" type="text" />
+            Object:
+            <select id="objectType">
+                <option value="uri">URI</option>
+                <option value="lit">Literal</option>
+            </select>
+            <input id="object" type="text" />
         </div>
         <div>
-                <input id="query" type="submit" value="Query" />
-                <img id="spinner" src="../../../_utils/image/spinner.gif" />
+            <input id="query" type="submit" value="Query" />
+            <img id="spinner" src="../../../_utils/image/spinner.gif" />
         </div>
         <div id="result">
         </div>
@@ -58,7 +58,7 @@
                     query += '/o/' + objectType + '/' + object;
                 }
                 $.get(query, function (result) {
-                    $('#result').empty().html('<h2>Result</h2>' + result);
+                    $('#result').empty().html('<h3>Result</h3>' + result);
                     $('#spinner').hide();
                 });
                 return false;

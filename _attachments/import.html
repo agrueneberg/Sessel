@@ -6,18 +6,21 @@
     <body>
         <strong>Please choose a <a href="http://www.w3.org/TR/rdf-testcases/#ntriples">N-Triples</a> file without blank nodes to import:</strong><br />
         <input type="file" id="file" />
-        <input type="button" value="Load file" onclick="dump();" />
+        <input type="button" value="Load file" onclick="importTriples();" />
         <script type="text/javascript">
-            var dump = function() {
+            var importTriples, toggleSpinner;
+            importTriples = function () {
+                var file, reader;
                 toggleSpinner();
-                var file = document.getElementById('file').files[0];
+                file = document.getElementById('file').files[0];
                 if (file) {
-                    var reader = new FileReader();
+                    reader = new FileReader();
                     reader.readAsText(file);
-                    reader.onload = function(event) {
-                        var payload = event.target.result;
-                        var worker = new Worker('scripts/import-worker.js');
-                        worker.onmessage = function(message) {
+                    reader.onload = function (event) {
+                        var payload, worker;
+                        payload = event.target.result;
+                        worker = new Worker('scripts/import-worker.js');
+                        worker.onmessage = function (message) {
                             if (message.data.code === 0) {
                                 alert(message.data.msg);
                             } else {
@@ -32,8 +35,9 @@
                     alert('Please provide a N-Triples file.');
                 }
             };
-            var toggleSpinner = function() {
-                var spinner = document.getElementById('spinner');
+            toggleSpinner = function () {
+                var spinner;
+                spinner = document.getElementById('spinner');
                 if (!spinner) {
                     spinner = document.createElement('img');
                     spinner.setAttribute('src', location.origin + '/_utils/image/spinner.gif');

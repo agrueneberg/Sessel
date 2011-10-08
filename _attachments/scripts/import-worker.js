@@ -1,5 +1,6 @@
-onmessage = function(message) {
-    var docs = [];
+onmessage = function (message) {
+    var docs, nTriplesPattern, rows, req, url, body;
+    docs = [];
     // Parser for N-Triples (http://www.w3.org/2001/sw/RDFCore/ntriples)
     // Blank nodes are not covered because Sessel does not support them yet.
     // RFC 2396 does not mention how to deal with ">" characters in URIs,
@@ -31,11 +32,12 @@ onmessage = function(message) {
     //   \s*
     // )?
     // $
-    var nTriplesPattern = /^\s*(?:#[\x20-\x7E]*|(<[^>]+>)\s+(<[^>]+>)\s+(<[^>]+>|"[\x20-\x7E]*")\s*\.\s*)?$/;
-    var rows = message.data.split('\n');
-    rows.forEach(function(row) {
-        var doc = {};
-        var matcher = row.match(nTriplesPattern);
+    nTriplesPattern = /^\s*(?:#[\x20-\x7E]*|(<[^>]+>)\s+(<[^>]+>)\s+(<[^>]+>|"[\x20-\x7E]*")\s*\.\s*)?$/;
+    rows = message.data.split('\n');
+    rows.forEach(function (row) {
+        var doc, matcher;
+        doc = {};
+        matcher = row.match(nTriplesPattern);
         // Skip comments and empty lines
         if (matcher !== null && !(matcher[1] === undefined && matcher[2] === undefined && matcher[3] === undefined)) {
             doc['subject'] = matcher[1].substring(1, matcher[1].length - 1)
@@ -51,14 +53,15 @@ onmessage = function(message) {
         }
     });
     if (docs.length > 0) {
-        var req = new XMLHttpRequest();
-        var url = location.protocol + '//' + location.host + '/' + location.pathname.split('/')[1] + '/';
-        var body = {'docs' : docs};
-        req.onreadystatechange = function() {
+        req = new XMLHttpRequest();
+        url = location.protocol + '//' + location.host + '/' + location.pathname.split('/')[1] + '/';
+        body = {'docs' : docs};
+        req.onreadystatechange = function () {
+            var responseObject, insertedDocuments;
             if (req.readyState == 4) {
-                var responseObject = JSON.parse(req.responseText);
-                var insertedDocuments = 0;
-                responseObject.forEach(function(doc) {
+                responseObject = JSON.parse(req.responseText);
+                insertedDocuments = 0;
+                responseObject.forEach(function (doc) {
                     // If there is a rev attribute, the document was inserted successfully.
                     if (doc.rev) {
                         insertedDocuments++;

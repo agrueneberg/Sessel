@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>SPARQL Endpoint</title>
+        <script type="text/javascript" src="../../../_utils/script/jquery.js"></script>
+        <script type="text/javascript" src="scripts/sparql.js"></script>
+    </head>
+    <body>
+        <h2>SPARQL Endpoint</h2>
+        <div>
+            SPARQL Query:<br />
+            <textarea id="sparql-query"></textarea>
+        </div>
+        <div>
+            <input id="query" type="submit" value="Query" />
+            <img id="spinner" src="../../../_utils/image/spinner.gif" style="display: none;" />
+        </div>
+        <div id="result">
+        </div>
+    </body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#query").click(function () {
+                $("#spinner").show();
+                var sparqlQuery, queryObject;
+                sparqlQuery = $("#sparql-query").val();
+                try {
+                    queryObject = SPARQL.parse(sparqlQuery);
+                    SPARQL.query(queryObject, function (result) {
+                        $("#result").empty().html("<h3>Result</h3>" + result);
+                        $("#spinner").hide();
+                    });
+                } catch (e) {
+                    alert("Something failed: " + e);
+                    $("#spinner").hide();
+                }
+                return false;
+            });
+        });
+    </script>
+<html>

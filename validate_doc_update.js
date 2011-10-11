@@ -13,56 +13,56 @@ function (newDoc, savedDoc, userCtx) {
     // Handle creation and updates of documents.
     if (newDoc.subject === undefined) {
         throw {
-            forbidden: 'subject is required'
-        }
+            forbidden: "subject is required"
+        };
     }
     if (!newDoc.subject.match(uriRegEx)) {
         throw {
-            forbidden: 'subject has to be a URI'
-        }
+            forbidden: "subject has to be a URI"
+        };
     }
 
     if (newDoc.predicate === undefined) {
         throw {
-            forbidden: 'predicate is required'
-        }
+            forbidden: "predicate is required"
+        };
     }
     if (!newDoc.predicate.match(uriRegEx)) {
         throw {
-            forbidden: 'predicate has to be a URI'
-        }
+            forbidden: "predicate has to be a URI"
+        };
     }
 
     if (newDoc.object === undefined) {
         throw {
-            forbidden: 'object is required'
-        }
+            forbidden: "object is required"
+        };
     }
     if (!newDoc.object_type) {
         throw {
-            forbidden: 'object has to have a type'
-        }
+            forbidden: "object has to have a type"
+        };
     }
-    if (newDoc.object_type !== 'URI' && newDoc.object_type !== 'Literal') {
+    if (newDoc.object_type !== "URI" && newDoc.object_type !== "Literal") {
         throw {
-            forbidden: 'type of the object has to be either "URI" or "Literal"' + " not " + newDoc.object.type
-        }
+            forbidden: "type of the object has to be either \"URI\" or \"Literal\"" + " not " + newDoc.object.type
+        };
     }
-    if (newDoc.object_type === 'URI' && !newDoc.object.match(uriRegEx)) {
+    if (newDoc.object_type === "URI" && !newDoc.object.match(uriRegEx)) {
         throw {
-            forbidden: 'object is not a valid URI'
-        }
+            forbidden: "object is not a valid URI"
+        };
     }
 
     if (!newDoc.permission) {
         throw {
-            forbidden: 'permission is required'
-        }
+            forbidden: "permission is required"
+        };
     }
-    if (newDoc.permission !== 'public' && newDoc.permission !== 'private') {
+    if (newDoc.permission !== "public" && newDoc.permission !== "private") {
         throw {
-            forbidden: 'permission has to be either "public" or "private"'
-        }
+            forbidden: "permission has to be either \"public\" or \"private\""
+        };
     }
 
 }

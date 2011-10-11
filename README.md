@@ -3,6 +3,9 @@ Sessel
 
 Sessel is a cross-indexed RDF store for [CouchDB](http://couchdb.apache.org) featuring an RDF query engine, import of and export to various RDF serialization formats, and a simple permission management.
 
+Blank nodes, typed literals, and literals with language tags are deliberately not supported.
+
+
 Installation
 ------------
 

@@ -40,26 +40,26 @@
     </body>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#query').click(function () {
+            $("#query").click(function () {
                 var subject, predicate, objectType, object, query;
-                $('#spinner').show();
-                subject = encodeURIComponent($('#subject').val());
-                predicate = encodeURIComponent($('#predicate').val());
-                objectType = $('#objectType').val();
-                object = encodeURIComponent($('#object').val());
-                query = '_rewrite';
-                if (subject != '') {
-                    query += '/s/' + subject;
+                $("#spinner").show();
+                subject = encodeURIComponent($("#subject").val());
+                predicate = encodeURIComponent($("#predicate").val());
+                objectType = $("#objectType").val();
+                object = encodeURIComponent($("#object").val());
+                query = "_rewrite";
+                if (subject != "") {
+                    query += "/s/" + subject;
                 }
-                if (predicate != '') {
-                    query += '/p/' + predicate;
+                if (predicate != "") {
+                    query += "/p/" + predicate;
                 }
-                if (object != '') {
-                    query += '/o/' + objectType + '/' + object;
+                if (object != "") {
+                    query += "/o/" + objectType + "/" + object;
                 }
                 $.get(query, function (result) {
-                    $('#result').empty().html('<h3>Result</h3>' + result);
-                    $('#spinner').hide();
+                    $("#result").empty().html("<h3>Result</h3>" + result);
+                    $("#spinner").hide();
                 });
                 return false;
             });

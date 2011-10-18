@@ -110,7 +110,7 @@ var SPARQL = (function () {
                             if (node.match(/\"[^"]+\"/)) {
                                 query += "/o/lit/" + encodeURIComponent(node);
                             } else {
-                                query += "/o/uri/" + encodeURIComponent(node.substring(1, object.length - 1));
+                                query += "/o/uri/" + encodeURIComponent(node.substring(1, node.length - 1));
                             }
                         }
                     }

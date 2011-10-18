@@ -10,7 +10,7 @@
         <h2>SPARQL Endpoint</h2>
         <div>
             SPARQL Query:<br />
-            <textarea id="sparql-query"></textarea>
+            <textarea id="sparql-query" rows="10" cols="120">SELECT * WHERE {}</textarea>
         </div>
         <div>
             <input id="query" type="submit" value="Query" />
@@ -28,7 +28,7 @@
                 try {
                     queryObject = SPARQL.parse(sparqlQuery);
                     SPARQL.query(queryObject, function (result) {
-                        $("#result").empty().html("<h3>Result</h3>" + result);
+                        $("#result").empty().html("<h3>Result</h3>" + JSON.stringify(result));
                         $("#spinner").hide();
                     });
                 } catch (e) {

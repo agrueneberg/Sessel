@@ -117,4 +117,23 @@ function (head, req) {
         send("</rdf:RDF>");
     });
 
+    // JSON output
+    provides("json", function () {
+        var row, triple, description, first;
+        first = true;
+        send("[");
+        while (row = getRow()) {
+            if (permissionFilter(row, req)) {
+                triple = extractTriple(row, req);
+                if (first) {
+                    first = false;
+                } else {
+                    send(",");
+                }
+                send(JSON.stringify(triple));
+            }
+        }
+        send("]");
+    });
+
 }

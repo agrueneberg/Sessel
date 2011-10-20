@@ -3,7 +3,30 @@ var SPARQL = (function () {
     "use strict";
     var parse, query, graphPatternResolver;
     parse = function (text) {
-        var pattern, matcher;
+        var triplePattern, sparqlPattern, sparqlMatcher, queryObject;
+        // Parser for triples
+        //
+        // Documentation:
+        // (
+        //   <[^>]+>
+        // |
+        //   \?\w+
+        // )
+        // \s+
+        // (
+        //   <[^>]+>
+        // |
+        //   \?\w+
+        // )
+        // \s+
+        // (
+        //   <[^>]+>
+        // |
+        //   \?\w+
+        // |
+        //   "[^"]+"
+        // )
+        triplePattern = /^\s*(<[^>]+>|\?\w+)\s+(<[^>]+>|\?\w+)\s+(<[^>]+>|\?\w+|"[^"]+")\s*$/;
         // Parser for SPARQL queries
         // Right now only the SELECT subset is supported.
         //
@@ -44,7 +67,7 @@ var SPARQL = (function () {
         //       |
         //         \?\w+
         //       |
-        //         "\w+"
+        //         "[^"]+"
         //       )
         //     )
         //   (?#More Triple Patterns)
@@ -70,7 +93,7 @@ var SPARQL = (function () {
         //       |
         //         \?\w+
         //       |
-        //         "\w+"
+        //         "[^"]+"
         //       )
         //     )*
         // )?
@@ -80,16 +103,26 @@ var SPARQL = (function () {
         // \}
         // \s*
         // $
-        pattern = /^\s*(SELECT)\s+((?:\*)|(?:\?\w+)(?:\s+\?\w+)*)\s+WHERE\s+\{\s*((?:(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+|"\w+"))(?:\s+\.\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+|"\w+"))*)?(?:\s+\.)?\s*\}\s*$/;
-        matcher = text.match(pattern);
-        if (matcher !== null) {
-            return {
-                type: matcher[1],
-                variables: matcher[2] !== "*" ? matcher[2].split(/\s+/) : matcher[2],
-                graphPatterns: matcher[3] !== undefined ? matcher[3].split(/\./).map(function (e) {
-                    return e.trim(/\s+/).split(/\s+/);
-                }) : []
-            };
+        sparqlPattern = /^\s*(SELECT)\s+((?:\*)|(?:\?\w+)(?:\s+\?\w+)*)\s+WHERE\s+\{\s*((?:(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+|"[^"]+"))(?:\s+\.\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+|"[^"]+"))*)?(?:\s+\.)?\s*\}\s*$/;
+        sparqlMatcher = text.match(sparqlPattern);
+        if (sparqlMatcher !== null) {
+            queryObject = {};
+            queryObject.type = sparqlMatcher[1];
+            if (sparqlMatcher[2] === "*") {
+                queryObject.variables = sparqlMatcher[2];
+            } else {
+                queryObject.variables = sparqlMatcher[2].split(/\s+/);
+            }
+            if (sparqlMatcher[3] === undefined) {
+                queryObject.graphPatterns = [];
+            } else {
+                queryObject.graphPatterns = sparqlMatcher[3].split(/\./).map(function (triple) {
+                    var tripleMatcher;
+                    tripleMatcher = triple.match(triplePattern);
+                    return [tripleMatcher[1], tripleMatcher[2], tripleMatcher[3]];
+                });
+            }
+            return queryObject;
         } else {
             throw "unrecognized text";
         }
@@ -132,7 +165,7 @@ var SPARQL = (function () {
                             query += "/p/" + encodeURIComponent(node.substring(1, node.length - 1));
                         } else if (index === 2) {
                             if (node.match(/\"[^"]+\"/)) {
-                                query += "/o/lit/" + encodeURIComponent(node);
+                                query += "/o/lit/" + encodeURIComponent(node.substring(1, node.length - 1));
                             } else {
                                 query += "/o/uri/" + encodeURIComponent(node.substring(1, node.length - 1));
                             }
@@ -147,21 +180,17 @@ var SPARQL = (function () {
                         newBindings = [];
                         triples = JSON.parse(xhr.responseText);
                         // Bind triples to binding.
-                        console.log('binding', binding);
                         triples.forEach(function (triple) {
-                            console.log('triple', triple);
                             var newBinding, bindingPosition;
                             newBinding = {};
                             triple.splice(2, 1);
                             // If there are no old bindings, just keep the new ones.
                             if (lastBindings.length === 0) {
-                                console.log('no old bindings found');
                                 // Populate bindings based on triple.
                                 binding.forEach(function (bindingVariable) {
                                     newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
                                 });
                             } else {
-                                console.log('old bindings found', lastBindings);
                                 lastBindings.forEach(function (lastBinding) {
                                     var merge, lastBindingVariable;
                                     // If a binding is present in both bindings, they have to match.
@@ -179,7 +208,6 @@ var SPARQL = (function () {
                                     });
                                     // Merge old and new bindings.
                                     if (merge) {
-                                        console.log('merge...', newBinding, lastBinding);
                                         for (lastBindingVariable in lastBinding) {
                                             if (lastBinding.hasOwnProperty(lastBindingVariable)) {
                                                 // Only copy if it's not already in newBinding.

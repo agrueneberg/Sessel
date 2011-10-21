@@ -1,9 +1,9 @@
 Sessel
 ======
 
-Sessel is a cross-indexed RDF store for [CouchDB](http://couchdb.apache.org) featuring an RDF query engine, import of and export to various RDF serialization formats, and a simple permission management.
+Sessel is a cross-indexed RDF triple store for [CouchDB](http://couchdb.apache.org) featuring an RDF query engine, a SPARQL endpoint, import of and export to various RDF serialization formats, and a simple permission management.
 
-Blank nodes, typed literals, and literals with language tags are deliberately not supported.
+Some simplifications of the original RDF model were made to support this functionality: blank nodes, typed literals, and literals with language tags are deliberately not supported. The implementation of SPARQL only understands the SELECT subset of the query language, and on the protocol side, JSON is used instead of XML.
 
 
 Installation
@@ -34,24 +34,32 @@ Query Language
 Sessel uses the URL rewriting system of CouchDB to provide a basic query language. The base URL of the service is `_design/sessel/_rewrite/`.
 Each of the following elements can be appended to the URL once in any order to form a query:
 
-* `/` – Queries all triples in the triple store
 * `/s/{URI}` – Queries a subject URI
 * `/p/{URI}` – Queries a predicate URI
 * `/o/uri/{URI}` – Queries an object URI **OR** `/o/lit/{LITERAL_VALUE}` – Queries an object literal
 
+`/` queries all triples in the triple store.
+
 URIs have to be **URI encoded** (in JavaScript `encodeURIComponent` can be used).
 
-There is graphical query interface in the browser for testing purposes that takes care of URI encoding: `_design/sessel/query.html`
+There is GUI-based query interface for testing purposes that takes care of URI encoding: `_design/sessel/query.html`
 
 ### Examples
 
 * Query all triples having the subject `http://example.com/rdf/testSubject`: `_design/sessel/_rewrite/s/http%3A%2F%2Fexample.com%2Frdf%2FtestSubject`
 
 
+SPARQL Endpoint
+---------------
+
+Sessel exposes a rudimentary GUI-based SPARQL endpoint that understands the SELECT subset of the query language: `_design/sessel/sparql.html`.
+At the moment, CouchDB does not offer a way to make web services written in JavaScript and stored as documents available as external processes.
+
+
 Import
 ------
 
-A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`. `tcga.nt` (Deus, H.F. et al. 2010. Exposing the cancer genome atlas as a SPARQL endpoint. Journal of Biomedical Informatics 43, 998-1008) in the `resources` directory serves as an example dataset.
+A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`. [`tcga.nt`](http://www.ncbi.nlm.nih.gov/pubmed/20851208) in the `resources` directory serves as an example dataset.
 
 
 Export
@@ -67,18 +75,5 @@ Query results can be exported in different formats by appending the URL paramete
 Permission Management
 ---------------------
 
-Sessel features a simple permission management: If the permission of an individual triple is set to `private` instead of `public` only authenticated users will be able to see it. In order to prevent unauthorized users from accessing the private data, it is highly recommended to set up a CouchDB Virtual Host pointing to `_design/sessel/_rewrite/` and to prevent access to Futon, the documents and the views. [The CouchDB Wiki](http://wiki.apache.org/couchdb/Virtual_Hosts) gives a detailed explanation of how to do it.
-
-
-SPARQL Endpoint
----------------
-
-Sessel does not feature a SPARQL endpoint at the moment, but tools like [SWObjects](http://sourceforge.net/apps/mediawiki/swobjects) can make up for that. SWObjects can import triples directly from Sessel by using a query like this:
-
-    SELECT *
-    FROM <{DB_URL}/_design/sessel/_rewrite/?format=rdf>
-    WHERE {
-        ?a ?b ?c .
-    }
-
-However, it will not notice if new triples are added to Sessel after the import.
+Sessel features a simple permission management: if the permission of an individual triple is set to `private` instead of `public` only authenticated users will be able to see it.
+In order to prevent unauthorized users from accessing private data, it is highly recommended to set up a CouchDB Virtual Host pointing to `_design/sessel/_rewrite/` and to prevent access to Futon, the documents and the views. [The CouchDB Wiki](http://wiki.apache.org/couchdb/Virtual_Hosts) gives a detailed explanation of how to do it.

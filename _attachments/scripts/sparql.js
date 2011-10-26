@@ -116,7 +116,10 @@ var SPARQL = (function () {
             if (sparqlMatcher[3] === undefined) {
                 queryObject.graphPatterns = [];
             } else {
-                queryObject.graphPatterns = sparqlMatcher[3].split(/\./).map(function (triple) {
+                // The regex to split the graph patterns is not perfect; URLs and literals also
+                // make use of the '.' character. For now, I'll just stick with / \. /, but it
+                // is merely an intermediate solution, because it could occur in literals.
+                queryObject.graphPatterns = sparqlMatcher[3].split(/ \. /).map(function (triple) {
                     var tripleMatcher;
                     tripleMatcher = triple.match(triplePattern);
                     return [tripleMatcher[1], tripleMatcher[2], tripleMatcher[3]];

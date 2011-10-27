@@ -3,127 +3,106 @@ var SPARQL = (function () {
     "use strict";
     var parse, query, graphPatternResolver;
     parse = function (text) {
-        var triplePattern, sparqlPattern, sparqlMatcher, queryObject;
-        // Parser for triples
+        var graphPatternPattern, graphPatternRegExp, graphPatternMatcher, graphPatternListPattern, sparqlPattern, sparqlRegExp, sparqlMatcher, graphPatternGroup, queryObject;
+        // Pattern for graph patterns.
+        // Catches subject, predicate, and object of a graph pattern.
         //
         // Documentation:
-        // (
-        //   <[^>]+>
+        // (                                # Subject
+        //   <[^>]+>                        #   URI (sloppy!)
         // |
-        //   \?\w+
+        //   \?\w+                          #   Variable
         // )
         // \s+
-        // (
-        //   <[^>]+>
+        // (                                # Predicate
+        //   <[^>]+>                        #   URI (sloppy!)
         // |
-        //   \?\w+
+        //   \?\w+                          #   Variable
         // )
         // \s+
-        // (
-        //   <[^>]+>
+        // (                                # Object
+        //   <[^>]+>                        #   URI (sloppy!)
         // |
-        //   \?\w+
+        //   "[^"]+"                        #   Literal
         // |
-        //   "[^"]+"
+        //   \?\w+                          #   Variable
         // )
-        triplePattern = /^\s*(<[^>]+>|\?\w+)\s+(<[^>]+>|\?\w+)\s+(<[^>]+>|\?\w+|"[^"]+")\s*$/;
-        // Parser for SPARQL queries
+        graphPatternPattern = "(<[^>]+>|\\?\\w+)\\s+(<[^>]+>|\\?\\w+)\\s+(<[^>]+>|\"[^\"]+\"|\\?\\w+)";
+        graphPatternRegExp = new RegExp("\\s*" + graphPatternPattern + "(?:\\s+\\.)?\\s*");
+        // Pattern for lists of graph patterns.
+        // Uses the graphPatternPattern defined above, but converts groups to non-catching ones.
+        // Catches the whole list of graph patterns.
+        //
+        // Documentation:
+        // (                                # Graph patterns are optional
+        //   (?<graphPatternPattern>)             # First graph pattern
+        //   (?:                            # More graph patterns
+        //     \s+
+        //     \.                           # Separated by period
+        //     \s+
+        //     (?<graphPatternPattern>)
+        //   )*
+        //   (?:                            # Optional final period
+        //     \s+
+        //     \.
+        //   )?
+        // )?
+        graphPatternListPattern = "(" + graphPatternPattern.replace("(", "(?:") + "(?:\\s+\\.\\s+" + graphPatternPattern.replace("(", "(?:") + ")*(?:\\s+\\.)?)?";
+        // Pattern for SPARQL queries.
         // Right now only the SELECT subset is supported.
+        // Uses the graphPatternListPattern defined above.
+        // Catches query form, variables, and list of graph patterns.
         //
         // Documentation:
-        // ^
-        // \s*
-        // (?#Query Form)
-        //   (SELECT)
+        // (SELECT)                         # Query form
         // \s+
-        // (?#Variables)
-        //   (
-        //     (?:\*)
-        //   |
-        //     (?:\?\w+)(?:\s+\?\w+)*
+        // (                                # Variables
+        //   (?:
+        //     \*                           #   Either '*'
         //   )
+        // |
+        //   (?:                            #   Or a single variable
+        //     \?\w+
+        //   )
+        //   (?:                            #   Or a list of named variables
+        //     \s+
+        //     \?
+        //     \w+
+        //   )*
+        // )
         // \s+
-        // WHERE
+        // WHERE                            # WHERE clause
         // \s+
         // \{
         // \s*
-        // (
-        //   (?#First Triple Pattern)
-        //     (?:
-        //       (?:
-        //         <[^>]+>
-        //       |
-        //         \?\w+
-        //       )
-        //       \s+
-        //       (?:
-        //         <[^>]+>
-        //       |
-        //         \?\w+
-        //       )
-        //       \s+
-        //       (?:
-        //         <[^>]+>
-        //       |
-        //         \?\w+
-        //       |
-        //         "[^"]+"
-        //       )
-        //     )
-        //   (?#More Triple Patterns)
-        //     (?:
-        //       \s+
-        //       (?#Separated By Period)
-        //         \.
-        //       \s+
-        //       (?:
-        //         <[^>]+>
-        //       |
-        //         \?\w+
-        //       )
-        //       \s+
-        //       (?:
-        //         <[^>]+>
-        //       |
-        //         \?\w+
-        //       )
-        //       \s+
-        //       (?:
-        //         <[^>]+>
-        //       |
-        //         \?\w+
-        //       |
-        //         "[^"]+"
-        //       )
-        //     )*
-        // )?
-        // (?#Optional Final Period)
-        //   (?:\s+\.)?
+        // (?<graphPatternListPattern>)
         // \s*
         // \}
-        // \s*
-        // $
-        sparqlPattern = /^\s*(SELECT)\s+((?:\*)|(?:\?\w+)(?:\s+\?\w+)*)\s+WHERE\s+\{\s*((?:(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+|"[^"]+"))(?:\s+\.\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+)\s+(?:<[^>]+>|\?\w+|"[^"]+"))*)?(?:\s+\.)?\s*\}\s*$/;
-        sparqlMatcher = text.match(sparqlPattern);
+        sparqlPattern = "(SELECT)\\s+((?:\\*)|(?:\\?\\w+)(?:\\s+\\?\\w+)*)\\s+WHERE\\s+\\{\\s*" + graphPatternListPattern + "\\s*\\}";
+        // Add some anchors for exact matches.
+        sparqlRegExp = new RegExp("^\\s*" + sparqlPattern + "\\s*$");
+        sparqlMatcher = text.match(sparqlRegExp);
         if (sparqlMatcher !== null) {
-            queryObject = {};
-            queryObject.type = sparqlMatcher[1];
+            queryObject = {
+                type: sparqlMatcher[1],
+                graphPatterns: []
+            };
             if (sparqlMatcher[2] === "*") {
                 queryObject.variables = sparqlMatcher[2];
             } else {
                 queryObject.variables = sparqlMatcher[2].split(/\s+/);
             }
-            if (sparqlMatcher[3] === undefined) {
-                queryObject.graphPatterns = [];
-            } else {
-                // The regex to split the graph patterns is not perfect; URLs and literals also
-                // make use of the '.' character. For now, I'll just stick with / \. /, but it
-                // is merely an intermediate solution, because it could occur in literals.
-                queryObject.graphPatterns = sparqlMatcher[3].split(/ \. /).map(function (triple) {
-                    var tripleMatcher;
-                    tripleMatcher = triple.match(triplePattern);
-                    return [tripleMatcher[1], tripleMatcher[2], tripleMatcher[3]];
-                });
+            if (sparqlMatcher[3] !== undefined) {
+                // It is hard to separate graph patterns by period, because URIs and
+                // literals can also contain them. Instead, one pattern is matched at
+                // a time and iteratively removed from the original patterns string
+                // until there are no patterns left.
+                graphPatternGroup = sparqlMatcher[3];
+                while (graphPatternGroup !== "") {
+                    graphPatternMatcher = graphPatternGroup.match(graphPatternRegExp);
+                    queryObject.graphPatterns.push([graphPatternMatcher[1], graphPatternMatcher[2], graphPatternMatcher[3]]);
+                    graphPatternGroup = graphPatternGroup.replace(graphPatternMatcher[0], "");
+                }
             }
             return queryObject;
         } else {

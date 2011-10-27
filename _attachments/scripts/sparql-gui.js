@@ -5,8 +5,8 @@ require(["jquery", "sparql"], function ($, sparql) {
             var sparqlQuery, queryObject;
             sparqlQuery = $("#sparql-query").val();
             try {
-                queryObject = SPARQL.parse(sparqlQuery);
-                SPARQL.query(queryObject, function (bindings) {
+                queryObject = sparql.parse(sparqlQuery);
+                sparql.query(queryObject, function (bindings) {
                     var resultDiv, resultTable, resultRow, bindingVariables, bindingVariable;
                     resultDiv = $("#result");
                     resultDiv.empty();

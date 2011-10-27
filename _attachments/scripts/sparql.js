@@ -1,5 +1,4 @@
-/*jslint regexp: true */
-var SPARQL = (function () {
+define(function () {
     "use strict";
     var parse, query, graphPatternResolver;
     parse = function (text) {
@@ -222,4 +221,4 @@ var SPARQL = (function () {
         parse: parse,
         query: query
     };
-}());
+});

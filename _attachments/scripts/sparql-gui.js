@@ -6,7 +6,17 @@ require(["jquery", "sparql"], function ($, sparql) {
             sparqlQuery = $("#sparql-query").val();
             try {
                 queryObject = sparql.parse(sparqlQuery);
-                sparql.query(queryObject, function (bindings) {
+                sparql.query(queryObject, function (query, callback) {
+                    xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            triples = JSON.parse(xhr.responseText);
+                            callback(triples);
+                        }
+                    };
+                    xhr.open("GET", query);
+                    xhr.send(null);
+                }, function (bindings) {
                     var resultDiv, resultTable, resultRow, bindingVariables, bindingVariable;
                     resultDiv = $("#result");
                     resultDiv.empty();

@@ -47,7 +47,7 @@ require(["jquery", "sparql"], function ($, sparql) {
                     $("#spinner").hide();
                 });
             } catch (e) {
-                alert("Something failed: " + e);
+                alert("Something failed: " + e.message);
                 $("#spinner").hide();
             }
             return false;

@@ -1,6 +1,6 @@
 define(function () {
     "use strict";
-    var parse, query, graphPatternResolver;
+    var parse, query, graphPatternRecurser;
     parse = function (text) {
         var graphPatternPattern, graphPatternRegExp, graphPatternMatcher, graphPatternListPattern, sparqlPattern, sparqlRegExp, sparqlMatcher, graphPatternGroup, queryObject;
         // Pattern for graph patterns.
@@ -105,16 +105,18 @@ define(function () {
             }
             return queryObject;
         } else {
-            throw "unrecognized text";
+            throw {
+                message: "unrecognized text"
+            };
         }
     };
-    query = function (queryObject, callback) {
+    query = function (queryObject, graphPatternResolver, callback) {
         var graphPatterns, initialBindings;
         graphPatterns = queryObject.graphPatterns;
         initialBindings = [];
-        graphPatternResolver(graphPatterns, initialBindings, callback);
+        graphPatternRecurser(graphPatterns, initialBindings, graphPatternResolver, callback);
     };
-    graphPatternResolver = function (graphPatterns, lastBindings, callback) {
+    graphPatternRecurser = function (graphPatterns, lastBindings, graphPatternResolver, callback) {
         var graphPatterns, graphPattern, binding, bindingPositions, hasBindings, query, xhr;
         if (graphPatterns.length > 0) {
             // Process only one pattern at a time.
@@ -154,60 +156,55 @@ define(function () {
                     }
                 });
                 query += "?format=json";
-                xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function () {
-                    var triples, newBindings;
-                    if (xhr.readyState === 4) {
-                        newBindings = [];
-                        triples = JSON.parse(xhr.responseText);
-                        // Bind triples to binding.
-                        triples.forEach(function (triple) {
-                            var newBinding, bindingPosition;
-                            newBinding = {};
-                            triple.splice(2, 1);
-                            // If there are no old bindings, just keep the new ones.
-                            if (lastBindings.length === 0) {
-                                // Populate bindings based on triple.
+                // Resolve query using some mechanism, be it XHR, http.request, or something else.
+                graphPatternResolver(query, function (triples) {
+                    var newBindings;
+                    // Bind triples to binding.
+                    newBindings = [];
+                    triples.forEach(function (triple) {
+                        var newBinding, bindingPosition;
+                        newBinding = {};
+                        triple.splice(2, 1);
+                        // If there are no old bindings, just keep the new ones.
+                        if (lastBindings.length === 0) {
+                            // Populate bindings based on triple.
+                            binding.forEach(function (bindingVariable) {
+                                newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
+                            });
+                        } else {
+                            lastBindings.forEach(function (lastBinding) {
+                                var merge, lastBindingVariable;
+                                // If a binding is present in both bindings, they have to match.
+                                merge = true;
                                 binding.forEach(function (bindingVariable) {
-                                    newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
-                                });
-                            } else {
-                                lastBindings.forEach(function (lastBinding) {
-                                    var merge, lastBindingVariable;
-                                    // If a binding is present in both bindings, they have to match.
-                                    merge = true;
-                                    binding.forEach(function (bindingVariable) {
-                                        if (binding.hasOwnProperty(bindingVariable)) {
-                                            if (lastBinding.hasOwnProperty(bindingVariable)) {
-                                                if (lastBinding[bindingVariable] !== triple[bindingPositions[bindingVariable]]) {
-                                                    merge = false;
-                                                } else {
-                                                    newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
-                                                }
-                                            }
-                                        }
-                                    });
-                                    // Merge old and new bindings.
-                                    if (merge) {
-                                        for (lastBindingVariable in lastBinding) {
-                                            if (lastBinding.hasOwnProperty(lastBindingVariable)) {
-                                                // Only copy if it's not already in newBinding.
-                                                if (!newBinding.hasOwnProperty(lastBindingVariable)) {
-                                                    newBinding[lastBindingVariable] = lastBinding[lastBindingVariable];
-                                                }
+                                    if (binding.hasOwnProperty(bindingVariable)) {
+                                        if (lastBinding.hasOwnProperty(bindingVariable)) {
+                                            if (lastBinding[bindingVariable] !== triple[bindingPositions[bindingVariable]]) {
+                                                merge = false;
+                                            } else {
+                                                newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
                                             }
                                         }
                                     }
                                 });
-                            }
-                            newBindings.push(newBinding);
-                        });
-                        // Carry over the graphPatterns that are left and newBindings over to the next step.
-                        graphPatternResolver(graphPatterns, newBindings, callback);
-                    }
-                };
-                xhr.open("GET", query);
-                xhr.send(null);
+                                // Merge old and new bindings.
+                                if (merge) {
+                                    for (lastBindingVariable in lastBinding) {
+                                        if (lastBinding.hasOwnProperty(lastBindingVariable)) {
+                                            // Only copy if it's not already in newBinding.
+                                            if (!newBinding.hasOwnProperty(lastBindingVariable)) {
+                                                newBinding[lastBindingVariable] = lastBinding[lastBindingVariable];
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        newBindings.push(newBinding);
+                    });
+                    // Carry over the graphPatterns that are left and newBindings over to the next step.
+                    graphPatternRecurser(graphPatterns, newBindings, graphPatternResolver, callback);
+                });
             } else {
                 // Return the bindings from the last step if there are no bindings.
                 callback(lastBindings);

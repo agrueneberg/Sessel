@@ -105,7 +105,9 @@ define(function () {
             }
             return queryObject;
         } else {
-            throw "unrecognized text";
+            throw {
+                message: "unrecognized text"
+            };
         }
     };
     query = function (queryObject, graphPatternResolver, callback) {

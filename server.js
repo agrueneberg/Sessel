@@ -8,6 +8,9 @@ requirejs.config({
 requirejs(["http", "url", "sparql"], function (http, url, sparql) {
     http.createServer(function (req, res) {
         var parsedUrl, queryObject;
+        // Enable CORS
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         // Parse URL including query parameters
         parsedUrl = url.parse(req.url, true);
         // Ignore favicon.ico requests

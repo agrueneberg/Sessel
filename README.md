@@ -59,7 +59,8 @@ At the moment, CouchDB does not offer a way to make web services written in Java
 Import
 ------
 
-A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`. [`tcga.nt`](http://www.ncbi.nlm.nih.gov/pubmed/20851208) in the `resources` directory serves as an example dataset.
+A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`.
+There are some example datasets in the `datasets` branch that can be used with Sessel.
 
 
 Export

@@ -1,5 +1,4 @@
 [
-    "resources",
     ".*\\.swp$",
     "\\.DS_Store$"
 ]

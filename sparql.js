@@ -1,6 +1,6 @@
 define(function () {
     "use strict";
-    var parse, query, graphPatternRecurser;
+    var parse, query, graphPatternRecurser, graphPatternFilter;
     parse = function (text) {
         var graphPatternPattern, graphPatternRegExp, graphPatternMatcher, graphPatternListPattern, sparqlPattern, sparqlRegExp, sparqlMatcher, graphPatternGroup, queryObject;
         // Pattern for graph patterns.
@@ -111,10 +111,13 @@ define(function () {
         }
     };
     query = function (queryObject, graphPatternResolver, callback) {
-        var graphPatterns, initialBindings;
+        var variables, graphPatterns, initialBindings;
+        variables = queryObject.variables;
         graphPatterns = queryObject.graphPatterns;
         initialBindings = [];
-        graphPatternRecurser(graphPatterns, initialBindings, graphPatternResolver, callback);
+        graphPatternRecurser(graphPatterns, initialBindings, graphPatternResolver, function (bindings) {
+            graphPatternFilter(variables, bindings, callback);
+        });
     };
     graphPatternRecurser = function (graphPatterns, lastBindings, graphPatternResolver, callback) {
         var graphPatterns, graphPattern, binding, bindingPositions, hasBindings, query, xhr;
@@ -212,6 +215,24 @@ define(function () {
         } else {
             // Return the bindings from the last step if there are no graph patterns (left).
             callback(lastBindings);
+        }
+    };
+    graphPatternFilter = function (variables, bindings, callback) {
+        var newBindings = [];
+        if (variables === "*") {
+            callback(bindings);
+        } else {
+            bindings.forEach(function (binding) {
+                var newBinding;
+                newBinding = {};
+                variables.forEach(function (variable) {
+                    // Strip off question mark.
+                    var variableName = variable.substring(1);
+                    newBinding[variableName] = binding[variableName];
+                });
+                newBindings.push(newBinding);
+            });
+            callback(newBindings);
         }
     };
     return {

@@ -174,36 +174,36 @@ define(function () {
                             binding.forEach(function (bindingVariable) {
                                 newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
                             });
+                            newBindings.push(newBinding);
                         } else {
                             lastBindings.forEach(function (lastBinding) {
                                 var merge, lastBindingVariable;
-                                // If a binding is present in both bindings, they have to match.
                                 merge = true;
+                                // Check if all bindings that are also in the last binding match.
                                 binding.forEach(function (bindingVariable) {
-                                    if (binding.hasOwnProperty(bindingVariable)) {
-                                        if (lastBinding.hasOwnProperty(bindingVariable)) {
-                                            if (lastBinding[bindingVariable] !== triple[bindingPositions[bindingVariable]]) {
-                                                merge = false;
-                                            } else {
-                                                newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
-                                            }
-                                        }
+                                    if (lastBinding.hasOwnProperty(bindingVariable) && lastBinding[bindingVariable] !== triple[bindingPositions[bindingVariable]]) {
+                                        // Discard binding if the values do not match.
+                                        merge = false;
                                     }
                                 });
-                                // Merge old and new bindings.
+                                // Merge new and last binding.
                                 if (merge) {
+                                    // Copy last bindings.
                                     for (lastBindingVariable in lastBinding) {
                                         if (lastBinding.hasOwnProperty(lastBindingVariable)) {
-                                            // Only copy if it's not already in newBinding.
-                                            if (!newBinding.hasOwnProperty(lastBindingVariable)) {
-                                                newBinding[lastBindingVariable] = lastBinding[lastBindingVariable];
-                                            }
+                                            newBinding[lastBindingVariable] = lastBinding[lastBindingVariable];
                                         }
                                     }
+                                    // Add new bindings that are not already in there.
+                                    binding.forEach(function (bindingVariable) {
+                                        if (!newBinding.hasOwnProperty(bindingVariable)) {
+                                            newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
+                                        }
+                                    });
+                                    newBindings.push(newBinding);
                                 }
                             });
                         }
-                        newBindings.push(newBinding);
                     });
                     // Carry over the graphPatterns that are left and newBindings over to the next step.
                     graphPatternRecurser(graphPatterns, newBindings, graphPatternResolver, callback);

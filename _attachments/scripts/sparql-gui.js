@@ -25,12 +25,14 @@ require(["jquery", "sparql"], function ($, sparql) {
                         resultDiv.append("No result.");
                     } else {
                         resultTable = $("<table></table>")
-                        // Get bindings once.
-                        bindingVariables = [];
                         resultRow = $("<tr></tr>");
+                        // Get binding variables of the first binding for ordering purposes.
+                        bindingVariables = [];
                         for (bindingVariable in bindings[0]) {
-                            bindingVariables.push(bindingVariable);
-                            resultRow.append("<th>" + bindingVariable + "</th>");
+                            if (bindings[0].hasOwnProperty(bindingVariable)) {
+                                bindingVariables.push(bindingVariable);
+                                resultRow.append("<th>" + bindingVariable + "</th>");
+                            }
                         }
                         resultTable.append(resultRow);
                         bindings.forEach(function (binding) {
@@ -39,10 +41,12 @@ require(["jquery", "sparql"], function ($, sparql) {
                             bindingVariables.forEach (function (bindingVariable) {
                                 // Ignore empty binding values for variables that do not show up
                                 // in the SELECT statement.
-                                if (binding[bindingVariable] !== null) {
+                                if (binding[bindingVariable] === null) {
+                                    resultCell = $("<td></td>");
+                                } else {
                                     resultCell = $("<td>" + binding[bindingVariable] + "</td>");
-                                    resultRow.append(resultCell);
                                 }
+                                resultRow.append(resultCell);
                             });
                             resultTable.append(resultRow);
                         });

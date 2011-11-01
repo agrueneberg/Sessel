@@ -185,7 +185,7 @@ define(function () {
                                 newBindings.push(newBinding);
                             } else {
                                 lastBindings.forEach(function (lastBinding) {
-                                    var merge, lastBindingVariable;
+                                    var merge, isDuplicate, lastBindingVariable;
                                     merge = true;
                                     // Check if all bindings that are also in the last binding match.
                                     binding.forEach(function (bindingVariable) {
@@ -215,7 +215,36 @@ define(function () {
                                                 newBinding[bindingVariable] = triple[bindingPositions[bindingVariable]];
                                             }
                                         });
-                                        newBindings.push(newBinding);
+                                        // Check if a similar binding already exists before pushing it into the array.
+                                        // The variable bindings of some SPARQL queries are disjunct in the beginning, but
+                                        // happen to share some of them later. The current test works on matching variables;
+                                        // if there are none of them, it will accept everything, even duplicates.
+                                        // Of course it cannot be a duplicate if the original list is empty.
+                                        if (newBindings.length === 0) {
+                                            newBindings.push(newBinding);
+                                        } else {
+                                            isDuplicate = false;
+                                            newBindings.forEach(function (duplicateBinding) {
+                                                // It's not a duplicate if there is at least one different value.
+                                                var duplicateBindingVariable, numberOfBindings, numberOfDuplicateValues;
+                                                numberOfBindings = 0;
+                                                numberOfDuplicateValues = 0;
+                                                for (duplicateBindingVariable in duplicateBinding) {
+                                                    if (duplicateBinding.hasOwnProperty(duplicateBindingVariable)) {
+                                                        if (newBinding[duplicateBindingVariable] === duplicateBinding[duplicateBindingVariable]) {
+                                                            numberOfDuplicateValues++;
+                                                        }
+                                                        numberOfBindings++;
+                                                    }
+                                                }
+                                                if (numberOfDuplicateValues === numberOfBindings) {
+                                                    isDuplicate = true;
+                                                }
+                                            });
+                                            if (!isDuplicate) {
+                                                newBindings.push(newBinding);
+                                            }
+                                        }
                                     }
                                 });
                             }

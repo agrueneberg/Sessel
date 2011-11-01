@@ -228,7 +228,11 @@ define(function () {
                 variables.forEach(function (variable) {
                     // Strip off question mark.
                     var variableName = variable.substring(1);
-                    newBinding[variableName] = binding[variableName];
+                    if (binding.hasOwnProperty(variableName)) {
+                        newBinding[variableName] = binding[variableName];
+                    } else {
+                        newBinding[variableName] = null;
+                    }
                 });
                 newBindings.push(newBinding);
             });

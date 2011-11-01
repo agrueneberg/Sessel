@@ -37,8 +37,12 @@ require(["jquery", "sparql"], function ($, sparql) {
                             var resultCell;
                             resultRow = $("<tr></tr>");
                             bindingVariables.forEach (function (bindingVariable) {
-                                resultCell = $("<td>" + binding[bindingVariable] + "</td>");
-                                resultRow.append(resultCell);
+                                // Ignore empty binding values for variables that do not show up
+                                // in the SELECT statement.
+                                if (binding[bindingVariable] !== null) {
+                                    resultCell = $("<td>" + binding[bindingVariable] + "</td>");
+                                    resultRow.append(resultCell);
+                                }
                             });
                             resultTable.append(resultRow);
                         });

@@ -25,10 +25,6 @@
         </div>
         <div>
             Object:
-            <select id="objectType">
-                <option value="uri">URI</option>
-                <option value="lit">Literal</option>
-            </select>
             <input id="object" type="text" />
         </div>
         <div>
@@ -45,7 +41,6 @@
                 $("#spinner").show();
                 subject = encodeURIComponent($("#subject").val());
                 predicate = encodeURIComponent($("#predicate").val());
-                objectType = $("#objectType").val();
                 object = encodeURIComponent($("#object").val());
                 query = "_rewrite";
                 if (subject != "") {
@@ -55,11 +50,19 @@
                     query += "/p/" + predicate;
                 }
                 if (object != "") {
-                    query += "/o/" + objectType + "/" + object;
+                    query += "/o/" + object;
                 }
-                $.get(query, function (result) {
-                    $("#result").empty().html("<h3>Result</h3>" + result);
-                    $("#spinner").hide();
+                $.ajax({
+                    url: query,
+                    dataType: "html",
+                    success: function (result) {
+                        var resultContainer;
+                        resultContainer = $("#result");
+                        resultContainer.empty();
+                        resultContainer.append("<h3>Result</h3>");
+                        resultContainer.append(result);
+                        $("#spinner").hide();
+                    }
                 });
                 return false;
             });

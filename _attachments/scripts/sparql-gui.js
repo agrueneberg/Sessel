@@ -44,7 +44,7 @@ require(["jquery", "sparql"], function ($, sparql) {
                                 if (binding[bindingVariable] === null) {
                                     resultCell = $("<td></td>");
                                 } else {
-                                    resultCell = $("<td>" + binding[bindingVariable] + "</td>");
+                                    resultCell = $("<td>" + binding[bindingVariable].replace(/<([^>]+)>/g, "&lt;$1&gt;") + "</td>");
                                 }
                                 resultRow.append(resultCell);
                             });

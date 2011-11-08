@@ -146,15 +146,11 @@ define(function () {
                     matcher = node.match(/\?(\w+)/);
                     if (matcher === null) {
                         if (index === 0) {
-                            query += "/s/" + encodeURIComponent(node.substring(1, node.length - 1));
+                            query += "/s/" + encodeURIComponent(node);
                         } else if (index === 1) {
-                            query += "/p/" + encodeURIComponent(node.substring(1, node.length - 1));
+                            query += "/p/" + encodeURIComponent(node);
                         } else if (index === 2) {
-                            if (node.match(/\"[^"]+\"/)) {
-                                query += "/o/lit/" + encodeURIComponent(node.substring(1, node.length - 1));
-                            } else {
-                                query += "/o/uri/" + encodeURIComponent(node.substring(1, node.length - 1));
-                            }
+                            query += "/o/" + encodeURIComponent(node);
                         }
                     }
                 });
@@ -175,7 +171,6 @@ define(function () {
                         triples.forEach(function (triple) {
                             var bindingPosition;
                             newBinding = {};
-                            triple.splice(2, 1);
                             // If there are no old bindings, just keep the new ones.
                             if (lastBindings.length === 0) {
                                 // Populate bindings based on triple.

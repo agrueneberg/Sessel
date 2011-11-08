@@ -3,137 +3,128 @@ function (head, req) {
     var extractTriple, permissionFilter;
 
     /**
-     * Extract subject, predicate, object_type and object from key
+     * Extract subject, predicate, and object from key.
      * @param row getRow() result
      * @param req req object
-     * @return [subject, predicate, object_type, object]
+     * @return [subject, predicate, object]
      */
     extractTriple = function (row, req) {
         if (req.path[5] === "spo") {
-            return [row.key[0], row.key[1], row.key[2], row.key[3]];
+            return [row.key[0], row.key[1], row.key[2]];
         } else if (req.path[5] === "pos") {
-            return [row.key[3], row.key[0], row.key[1], row.key[2]];
+            return [row.key[2], row.key[0], row.key[1]];
         } else if (req.path[5] === "osp") {
-            return [row.key[2], row.key[3], row.key[0], row.key[1]];
+            return [row.key[1], row.key[2], row.key[0]];
         }
     };
 
-    /**
-     * Determines if triple is allowed to be sent
-     * @param row getRow() result
-     * @param req req object
-     * @return boolean true if allowed, false otherwise
-     */
-    permissionFilter = function (row, req) {
-        var permission;
-        permission = row.value;
-        if (permission === "public" || (req.userCtx.name && permission === "private")) {
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    // HTML output
-    provides("html", function () {
-        var row, triple, description;
-        while (row = getRow()) {
-            if (permissionFilter(row, req)) {
-                triple = extractTriple(row, req);
-                description = "";
-                description += "&lt;" + triple[0] + "&gt;";
-                description += " ";
-                description += "&lt;" + triple[1] + "&gt;";
-                description += " ";
-                if (triple[2] === "URI") {
-                    description += "&lt;" + triple[3] + "&gt;";
-                } else if (triple[2] === "Literal") {
-                    description += "\"" + triple[3] + "\"";
-                }
-                description += " .<br />";
-                send(description);
-            }
-        }
-    });
-
-    // N3 output
-    registerType("n3", "text/n3");
-    provides("n3", function () {
-        var row, triple, description;
-        while (row = getRow()) {
-            if (permissionFilter(row, req)) {
-                triple = extractTriple(row, req);
-                description = "";
-                description += "<" + triple[0] + ">";
-                description += " ";
-                description += "<" + triple[1] + ">";
-                description += " ";
-                if (triple[2] === "URI") {
-                    description += "<" + triple[3] + ">";
-                } else if (triple[2] === "Literal") {
-                    description += "\"" + triple[3] + "\"";
-                }
-                description += " .\n";
-                send(description);
-            }
-        }
-    });
-
-    // RDF output
-    registerType("rdf", "application/rdf+xml");
-    provides("rdf", function () {
-        var namespaceRegex, namespaceLookup, row, triple, description, matcher, namespace, namespaceIndex, identifier;
-        namespaceRegex = /^(.*[/#])(.*)$/;
-        namespaceLookup = [];
-        send("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        send("<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">");
-        while (row = getRow()) {
-            if (permissionFilter(row, req)) {
-                triple = extractTriple(row, req);
-                // Extract namespace by only using the part before the last slash or hash
-                matcher = triple[1].match(namespaceRegex);
-                namespace = matcher[1];
-                namespaceIndex = namespaceLookup.indexOf(namespace);
-                if (namespaceIndex === -1) {
-                    namespaceLookup.push(namespace);
-                    namespaceIndex = namespaceLookup.length - 1;
-                }
-                identifier = matcher[2];
-                // Generate description
-                description = "";
-                description += "<rdf:Description rdf:about=\"" + triple[0] + "\">";
-                if (triple[2] === "URI") {
-                    description += "<ns" + namespaceIndex + ":" + identifier + " xmlns:ns" + namespaceIndex + "=\"" + namespace + "\" rdf:resource=\"" + triple[3] + "\" />";
-                } else if (triple[2] === "Literal") {
-                    description += "<ns" + namespaceIndex + ":" + identifier + " xmlns:ns" + namespaceIndex + "=\"" + namespace + "\">";
-                    // Escape literals
-                    description += escape(triple[3]);
-                    description += "</ns" + namespaceIndex + ":" + identifier + ">";
-                }
-                description += "</rdf:Description>";
-                send(description);
-            }
-        }
-        send("</rdf:RDF>");
-    });
-
-    // JSON output
+    // Outputs JSON.
     provides("json", function () {
-        var row, triple, description, first;
+        var row, triple, first;
         first = true;
         send("[");
         while (row = getRow()) {
-            if (permissionFilter(row, req)) {
-                triple = extractTriple(row, req);
-                if (first) {
-                    first = false;
-                } else {
-                    send(",");
-                }
-                send(JSON.stringify(triple));
+            triple = extractTriple(row, req);
+            if (first) {
+                first = false;
+            } else {
+                send(",");
             }
+            send(JSON.stringify(triple));
         }
         send("]");
+    });
+
+    // Outputs HTML.
+    provides("html", function () {
+        var row, triple;
+        while (row = getRow()) {
+            triple = extractTriple(row, req);
+            triple = triple.join(" ")
+            triple = triple.replace(/<([^>]+)>/g, "&lt;$1&gt;");
+            triple = triple + "<br />";
+            send(triple);
+        }
+    });
+
+    // Outputs N3.
+    registerType("n3", "text/n3");
+    provides("n3", function () {
+        var row, triple;
+        while (row = getRow()) {
+            triple = extractTriple(row, req);
+            triple = triple.join(" ");
+            triple = triple + " .\n";
+            send(triple);
+        }
+    });
+
+    // Outputs RDF/XML.
+    registerType("rdfxml", "application/rdf+xml");
+    provides("rdfxml", function () {
+        var namespaceRegex, namespaceLookup, row, triple, namespaceMatcher, namespace, namespaceIndex, subject, predicate, object, objectType, identifier, description;
+        namespaceRegex = /^(.*[/#])(.*)$/;
+        namespaceLookup = [];
+        send("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        send("<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n");
+        while (row = getRow()) {
+            triple = extractTriple(row, req);
+            // Strip leading "<" or "\"", and trailing ">" or "\"".
+            subject = triple[0].replace(/<([^>]+)>/, "$1");
+            predicate = triple[1].replace(/<([^>]+)>/, "$1");
+            object = triple[2];
+            // Determine object type based on brackets or quotation marks.
+            if (object.charAt(0) === "<") {
+                object = triple[2].replace(/<([^>]+)>/, "$1");
+                objectType = "URI";
+            } else {
+                object = triple[2].replace(/"([^"]+)"/, "$1");
+                objectType = "Literal";
+            }
+            // Extract namespace of the predicate by only using the part before the last slash or hash.
+            namespaceMatcher = predicate.match(namespaceRegex);
+            namespace = namespaceMatcher[1];
+            namespaceIndex = namespaceLookup.indexOf(namespace);
+            if (namespaceIndex === -1) {
+                namespaceLookup.push(namespace);
+                namespaceIndex = namespaceLookup.length - 1;
+            }
+            identifier = namespaceMatcher[2];
+            // Generate description.
+            description = "  ";
+            description += "<rdf:Description rdf:about=\"" + subject + "\">";
+            description += "\n";
+            if (objectType === "URI") {
+                description += "    ";
+                // Reuse RDF namespace.
+                if (namespace === "http://www.w3.org/1999/02/22-rdf-syntax-ns#") {
+                    description += "<rdf:" + identifier + " rdf:resource=\"" + object + "\" />";
+                } else {
+                    description += "<ns" + namespaceIndex + ":" + identifier + " xmlns:ns" + namespaceIndex + "=\"" + namespace + "\" rdf:resource=\"" + object + "\" />";
+                }
+                description += "\n";
+            } else if (objectType === "Literal") {
+                description += "    ";
+                if (namespace === "http://www.w3.org/1999/02/22-rdf-syntax-ns#") {
+                    description += "<rdf:" + identifier + ">";
+                    // Escape object literals.
+                    description += escape(object);
+                    description += "</rdf:" + identifier + ">";
+                } else {
+                    description += "<ns" + namespaceIndex + ":" + identifier + " xmlns:ns" + namespaceIndex + "=\"" + namespace + "\">";
+                    // Escape object literals.
+                    description += escape(object);
+                    description += "</ns" + namespaceIndex + ":" + identifier + ">";
+                }
+                description += "\n";
+            }
+            description += "  ";
+            description += "</rdf:Description>";
+            // Pretty print.
+            description += "\n";
+            send(description);
+        }
+        send("</rdf:RDF>");
     });
 
 }

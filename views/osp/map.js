@@ -1,3 +1,7 @@
 function (doc) {
-    emit([doc.object_type, doc.object, doc.subject, doc.predicate], doc.permission);
+    var triplify;
+    triplify = require("views/lib/triplifier").triplify;
+    triplify(doc, { "id" : doc._id }, function (triple, annotations) {
+        emit([triple[2], triple[0], triple[1]], annotations);
+    });
 }

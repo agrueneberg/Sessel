@@ -42,7 +42,7 @@ function (head, req) {
             triple = extractTriple(row, req);
             triple = triple.join(" ")
             triple = triple.replace(/<([^>]+)>/g, "&lt;$1&gt;");
-            triple = triple + "<br />";
+            triple = triple + " .<br />";
             send(triple);
         }
     });

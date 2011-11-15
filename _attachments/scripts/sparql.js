@@ -1,6 +1,6 @@
 define(function () {
     "use strict";
-    var parse, query, graphPatternRecurser, graphPatternFilter;
+    var parse, query, graphPatternRecurser, graphPatternFilter, graphPatternLimiter;
     parse = function (text) {
         var graphPatternPattern, graphPatternRegExp, graphPatternMatcher, graphPatternListPattern, sparqlPattern, sparqlRegExp, sparqlMatcher, graphPatternGroup, queryObject;
         // Pattern for graph patterns.
@@ -34,7 +34,7 @@ define(function () {
         //
         // Documentation:
         // (                                # Graph patterns are optional
-        //   (?<graphPatternPattern>)             # First graph pattern
+        //   (?<graphPatternPattern>)       # First graph pattern
         //   (?:                            # More graph patterns
         //     \s+
         //     \.                           # Separated by period
@@ -77,20 +77,29 @@ define(function () {
         // (?<graphPatternListPattern>)
         // \s*
         // \}
-        sparqlPattern = "(SELECT)\\s+((?:\\*)|(?:\\?\\w+)(?:\\s+\\?\\w+)*)\\s+WHERE\\s+\\{\\s*" + graphPatternListPattern + "\\s*\\}";
+        // (?:                              # Optional LIMIT clause
+        //   \s+
+        //   LIMIT
+        //   \s+
+        //   \d+
+        // )?
+        sparqlPattern = "(SELECT)\\s+((?:\\*)|(?:\\?\\w+)(?:\\s+\\?\\w+)*)\\s+WHERE\\s+\\{\\s*" + graphPatternListPattern + "\\s*\\}(?:\\s+LIMIT\\s+(\\d+))?";
         // Add some anchors for exact matches.
         sparqlRegExp = new RegExp("^\\s*" + sparqlPattern + "\\s*$");
         sparqlMatcher = text.match(sparqlRegExp);
         if (sparqlMatcher !== null) {
             queryObject = {
-                type: sparqlMatcher[1],
                 graphPatterns: []
             };
+            // Extract type.
+            queryObject.type = sparqlMatcher[1];
+            // Extract variables.
             if (sparqlMatcher[2] === "*") {
                 queryObject.variables = sparqlMatcher[2];
             } else {
                 queryObject.variables = sparqlMatcher[2].split(/\s+/);
             }
+            // Extract graph patterns.
             if (sparqlMatcher[3] !== undefined) {
                 // It is hard to separate graph patterns by period, because URIs and
                 // literals can also contain them. Instead, one pattern is matched at
@@ -103,6 +112,10 @@ define(function () {
                     graphPatternGroup = graphPatternGroup.replace(graphPatternMatcher[0], "");
                 }
             }
+            // Extract limit.
+            if (sparqlMatcher[4] !== undefined) {
+                queryObject.limit = sparqlMatcher[4];
+            }
             return queryObject;
         } else {
             throw {
@@ -111,12 +124,21 @@ define(function () {
         }
     };
     query = function (queryObject, graphPatternResolver, callback) {
-        var variables, graphPatterns, initialBindings;
+        var variables, graphPatterns, limit, initialBindings;
         variables = queryObject.variables;
         graphPatterns = queryObject.graphPatterns;
+        limit = queryObject.limit;
         initialBindings = [];
         graphPatternRecurser(graphPatterns, initialBindings, graphPatternResolver, function (bindings) {
-            graphPatternFilter(variables, bindings, callback);
+            // Filter unrequested variables.
+            graphPatternFilter(variables, bindings, function (filteredBindings) {
+                // Restrict number of triples to output.
+                if (limit) {
+                    graphPatternLimiter(limit, filteredBindings, callback);
+                } else {
+                    callback(filteredBindings);
+                }
+            });
         });
     };
     graphPatternRecurser = function (graphPatterns, lastBindings, graphPatternResolver, callback) {
@@ -257,6 +279,12 @@ define(function () {
             callback(lastBindings);
         }
     };
+    graphPatternLimiter = function (limit, bindings, callback) {
+        var limitedBindings;
+        // slice takes care of all situations needed.
+        limitedBindings = bindings.slice(0, limit);
+        callback(limitedBindings);
+    },
     graphPatternFilter = function (variables, bindings, callback) {
         var newBindings = [];
         if (variables === "*") {

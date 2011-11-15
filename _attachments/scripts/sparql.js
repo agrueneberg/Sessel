@@ -46,7 +46,7 @@ define(function () {
         //     \.
         //   )?
         // )?
-        graphPatternListPattern = "(" + graphPatternPattern.replace("(", "(?:") + "(?:\\s+\\.\\s+" + graphPatternPattern.replace("(", "(?:") + ")*(?:\\s+\\.)?)?";
+        graphPatternListPattern = "(" + graphPatternPattern.replace(/\(([^?][^:])/g, "(?:$1") + "(?:\\s+\\.\\s+" + graphPatternPattern.replace(/\(([^?][^:])/g, "(?:$1") + ")*(?:\\s+\\.)?)?";
         // Pattern for SPARQL queries.
         // Right now only the SELECT subset is supported.
         // Uses the graphPatternListPattern defined above.

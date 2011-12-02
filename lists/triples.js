@@ -100,6 +100,11 @@ function (head, req) {
      */
     registerType("ntriples", "text/plain");
     provides("ntriples", function () {
+        start({
+            "headers": {
+                "Content-Disposition": "attachment; filename=" + req.info.db_name + ".nt"
+            }
+        });
         formatTriples(function (triple) {
             send(triple.join(" ") + " .\n");
         });
@@ -111,6 +116,11 @@ function (head, req) {
     registerType("turtle", "text/turtle");
     provides("turtle", function () {
         var prefixes, firstSubject, currentSubject;
+        start({
+            "headers": {
+                "Content-Disposition": "attachment; filename=" + req.info.db_name + ".ttl"
+            }
+        });
         prefixes = {};
         prefixes[baseUri] = "sessel";
         prefixes[baseUri + "verb/"] = "sesselVerb";
@@ -144,6 +154,11 @@ function (head, req) {
      */
     registerType("rdfxml", "application/rdf+xml");
     provides("rdfxml", function () {
+        start({
+            "headers": {
+                "Content-Disposition": "attachment; filename=" + req.info.db_name + ".rdf"
+            }
+        });
         send("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         send("<rdf:RDF\n");
         send("  xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n");

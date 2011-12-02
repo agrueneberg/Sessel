@@ -161,24 +161,8 @@ define(function () {
             });
             // There has to be at least one binding, otherwise the operation is pointless.
             if (hasBindings) {
-                // Create Sessel query string.
-                query = "_rewrite";
-                graphPattern.forEach(function (node, index) {
-                    var matcher;
-                    matcher = node.match(/\?(\w+)/);
-                    if (matcher === null) {
-                        if (index === 0) {
-                            query += "/s/" + encodeURIComponent(node);
-                        } else if (index === 1) {
-                            query += "/p/" + encodeURIComponent(node);
-                        } else if (index === 2) {
-                            query += "/o/" + encodeURIComponent(node);
-                        }
-                    }
-                });
-                query += "?format=json";
-                // Resolve query using some mechanism, be it XHR, http.request, or something else.
-                graphPatternResolver(query, function (triples) {
+                // Resolve query.
+                graphPatternResolver(graphPattern, function (triples) {
                     var newBindings, newBinding;
                     // Bind triples to binding.
                     newBindings = [];

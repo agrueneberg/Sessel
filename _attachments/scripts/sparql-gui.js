@@ -6,7 +6,31 @@ require(["jquery", "sparql"], function ($, sparql) {
             sparqlQuery = $("#sparql-query").val();
             try {
                 queryObject = sparql.parse(sparqlQuery);
-                sparql.query(queryObject, function (query, callback) {
+                sparql.query(queryObject, function (graphPattern, callback) {
+                    var query;
+                    // Create query string for Sessel.
+                    query = "_rewrite";
+                    graphPattern.forEach(function (node, idx) {
+                        var splits, name;
+                        // Exclude variables.
+                        if (!node.match(/\?(\w+)/)) {
+                            if (idx === 0 || idx === 1) {
+                                // Strip base URI. Concretely, only the last part is of interest.
+                                splits = node.split("/");
+                                id = splits[splits.length - 1];
+                                id = id.substring(0, id.length - 1);
+                                if (idx === 0) {
+                                    query += "/s/" + encodeURIComponent(id);
+                                } else if (idx === 1) {
+                                    query += "/p/" + encodeURIComponent(id);
+                                }
+                            } else if (idx === 2) {
+                                // TODO: Unescape literals, but allow URIs.
+                                query += "/o/" + encodeURIComponent(node);
+                            }
+                        }
+                    });
+                    query += "?format=json";
                     xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState === 4) {

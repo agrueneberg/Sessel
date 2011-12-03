@@ -1,80 +1,50 @@
 Sessel
 ======
 
-Sessel is a cross-indexed RDF triple store for [CouchDB](http://couchdb.apache.org) featuring an RDF query engine, a SPARQL endpoint, import of and export to various RDF serialization formats, and a simple permission management.
-
-Some simplifications of the original RDF model were made to support this functionality: blank nodes, typed literals, and literals with language tags are deliberately not supported. The implementation of SPARQL only understands the SELECT subset of the query language, and on the protocol side, JSON is used instead of XML.
+Sessel bridges between semi-structured and assertive data by mapping JSON documents to RDF triples. The generated triples are then exposed as a SPARQL endpoint. Sessel is designed to be replicated into any existing [CouchDB](http://couchdb.apache.org) database.
 
 
 Installation
 ------------
 
-Use [CouchApp](http://couchapp.org) to push Sessel to CouchDB or replicate [an existing deployment of Sessel](http://agrueneberg.iriscouch.com/sessel/).
+Clone this repository and use [CouchApp](http://couchapp.org) to push Sessel to CouchDB, or replicate [an existing deployment of Sessel](http://agrueneberg.iriscouch.com/sessel/), e.g. using curl:
+
+    curl\
+      -X POST\
+      -H "Content-Type:application/json"\
+      -d "{\"source\":\"http://agrueneberg.iriscouch.com/sessel\",\
+           \"target\":\"http://localhost:5984/<your_db>\",\
+           \"filter\":\"vacuum/rw\"}"\
+      http://localhost:5984/_replicate
 
 
-Document Format
----------------
+Document Conversion
+-------------------
 
-Triples are stored as documents in the following format:
-
-    {
-        "subject": "{URI}",
-        "predicate": "{URI}",
-        "object_type": "URI" | "Literal",
-        "object": "{URI}" | "{Literal Value}",
-        "permission": "public" | "private"
-    }
-
-Curly braces indicate placeholders.
-
-
-Query Language
---------------
-
-Sessel uses the URL rewriting system of CouchDB to provide a basic query language. The base URL of the service is `_design/sessel/_rewrite/`.
-Each of the following elements can be appended to the URL once in any order to form a query:
-
-* `/s/{URI}` – Queries a subject URI
-* `/p/{URI}` – Queries a predicate URI
-* `/o/uri/{URI}` – Queries an object URI **OR** `/o/lit/{LITERAL_VALUE}` – Queries an object literal
-
-`/` queries all triples in the triple store.
-
-URIs have to be **URI encoded** (in JavaScript `encodeURIComponent` can be used).
-
-There is GUI-based query interface for testing purposes that takes care of URI encoding: `_design/sessel/query.html`
-
-### Examples
-
-* Query all triples having the subject `http://example.com/rdf/testSubject`: `_design/sessel/_rewrite/s/http%3A%2F%2Fexample.com%2Frdf%2FtestSubject`
+The `_id` value of each JSON document serves as the subject of a generated triple. The predicates and objects are populated from the rest of the key-value pairs.
 
 
 SPARQL Endpoint
 ---------------
 
-Sessel exposes a rudimentary GUI-based SPARQL endpoint that understands the SELECT subset of the query language: `_design/sessel/sparql.html`.
-At the moment, CouchDB does not offer a way to make web services written in JavaScript and stored as documents available as external processes.
-
-
-Import
-------
-
-A graphical import interface enables the import of existing RDF graphs stored in the N-Triples (`.nt`) format: `_design/sessel/import.html`.
-There are some example datasets in the `datasets` branch that can be used with Sessel.
+`_design/sessel/sparql.html` provides a GUI-based SPARQL endpoint that understands the `SELECT` subset of the SPARQL query language.
+At the moment, the SPARQL endpoint can only be made available as a web service in a restricted manner. This is because CouchDB does not offer a way to store additional server-side logic in replicable design documents yet. As a workaround, a [companion tool based on Node](https://github.com/agrueneberg/Sessel/tree/node) can be put in front of Sessel to expose its SPARQL endpoint on the web.
 
 
 Export
 ------
 
-Query results can be exported in different formats by appending the URL parameter `format` and one of the following values:
+`_design/sessel/_rewrite/` allows for exporting all generated triples to various RDF serialization formats. The format is selected by adding the URL parameter `format` to the web service call, or by sending an `Accept` header to the web service.
+The following formats are supported:
 
-* `rdf` – RDF/XML
-* `n3` – N3
-* `html` – HTML
+* `html` (`text/html`) – HTML (default)
+* `ntriples` (`text/plain`) – N-Triples
+* `turtle` (`text/turtle`) – Turtle
+* `rdfxml` (`application/rdf+xml`) – RDF/XML
+* `json` (`application/json`) – JSON (mainly for the SPARQL endpoint)
 
 
-Permission Management
----------------------
+Notes
+-----
 
-Sessel features a simple permission management: if the permission of an individual triple is set to `private` instead of `public` only authenticated users will be able to see it.
-In order to prevent unauthorized users from accessing private data, it is highly recommended to set up a CouchDB Virtual Host pointing to `_design/sessel/_rewrite/` and to prevent access to Futon, the documents and the views. [The CouchDB Wiki](http://wiki.apache.org/couchdb/Virtual_Hosts) gives a detailed explanation of how to do it.
+Some aspects of the original RDF model such as blank nodes, typed literals, and literals with language tags are not supported yet. The SPARQL implementation only understands the SELECT subset of the query language, and on the protocol side, JSON is used instead of XML.

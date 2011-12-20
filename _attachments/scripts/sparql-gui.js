@@ -9,7 +9,7 @@ require(["jquery", "sparql"], function ($, sparql) {
                 sparql.query(queryObject, function (graphPattern, callback) {
                     var query;
                     // Create query string for Sessel.
-                    query = "_rewrite";
+                    query = "_rewrite/query";
                     graphPattern.forEach(function (node, idx) {
                         var splits, name;
                         // Exclude variables.

@@ -1,50 +1,68 @@
 Sessel
 ======
 
-Sessel bridges between semi-structured and assertive data by mapping JSON documents to RDF triples. The generated triples are then exposed as a SPARQL endpoint. Sessel is designed to be replicated into any existing [CouchDB](http://couchdb.apache.org) database.
+Sessel is a CouchApp for [CouchDB](http://couchdb.apache.org) that generates RDF triples from JSON documents, which then in turn can be exported to various serialization formats, or queried through a SPARQL endpoint.
 
 
 Installation
 ------------
 
-Clone this repository and use [CouchApp](http://couchapp.org) to push Sessel to CouchDB, or replicate [an existing deployment of Sessel](http://agrueneberg.iriscouch.com/sessel/), e.g. using curl:
+Sessel is designed to be replicated or pushed into any existing CouchDB database. Therefore, there is more than one way to install it.
 
-    curl\
-      -X POST\
-      -H "Content-Type:application/json"\
-      -d "{\"source\":\"http://agrueneberg.iriscouch.com/sessel\",\
-           \"target\":\"http://localhost:5984/<your_db>\",\
-           \"filter\":\"vacuum/rw\"}"\
-      http://localhost:5984/_replicate
+### Install Sessel using replication
 
+Replicate [an existing deployment of Sessel](http://agrueneberg.iriscouch.com/sessel/) to `<your_host>/<your_db`:
 
-Document Conversion
--------------------
+    curl \
+      -X POST \
+      -H "Content-Type:application/json" \
+      -d "{\"source\":\"http://agrueneberg.iriscouch.com/sessel\", \
+           \"target\":\"http://<your_host>/<your_db>\", \
+           \"filter\":\"vacuum/rw\"}" \
+      http://<your_host>/_replicate
 
-The `_id` value of each JSON document serves as the subject of a generated triple. The predicates and objects are populated from the rest of the key-value pairs.
+### Install Sessel using [CouchApp](http://couchapp.org)
 
+Clone this repository and use [CouchApp](http://couchapp.org) to push Sessel to `<your_host>/<your_db>`:
 
-SPARQL Endpoint
----------------
-
-`_design/sessel/sparql.html` provides a GUI-based SPARQL endpoint that understands the `SELECT` subset of the SPARQL query language.
-At the moment, the SPARQL endpoint can only be made available as a web service in a restricted manner. This is because CouchDB does not offer a way to store additional server-side logic in replicable design documents yet. As a workaround, a [companion tool based on Node](https://github.com/agrueneberg/Sessel/tree/node) can be put in front of Sessel to expose its SPARQL endpoint on the web.
+    git clone git://github.com/agrueneberg/Sessel.git
+    couchapp push Sessel/ http://<your_host>/<your_db>
 
 
 Export
 ------
 
-`_design/sessel/_rewrite/` allows for exporting all generated triples to various RDF serialization formats. The format is selected by adding the URL parameter `format` to the web service call, or by sending an `Accept` header to the web service.
-The following formats are supported:
+The generated triples can be exported to various RDF serialization formats by calling the export interface `http://<your_host>/<your_db>/_design/sessel/_rewrite/` with one of the following strings added:
 
-* `html` (`text/html`) – HTML (default)
-* `ntriples` (`text/plain`) – N-Triples
-* `turtle` (`text/turtle`) – Turtle
-* `rdfxml` (`application/rdf+xml`) – RDF/XML
-* `json` (`application/json`) – JSON (mainly for the SPARQL endpoint)
+* `export.nt` – Export as [N-Triples](http://www.w3.org/TR/rdf-testcases/#ntriples)
+* `export.ttl` – Export as [Turtle](http://www.w3.org/TeamSubmission/turtle/)
+* `export.rdf` – Export as [RDF/XML](http://www.w3.org/TR/rdf-syntax-grammar/)
 
 
-Notes
------
+SPARQL Endpoint
+---------------
 
-Some aspects of the original RDF model such as blank nodes, typed literals, and literals with language tags are not supported yet. The SPARQL implementation only understands the SELECT subset of the query language, and on the protocol side, JSON is used instead of XML.
+A GUI-based SPARQL endpoint that understands the `SELECT` subset of the [SPARQL query language](http://www.w3.org/TR/rdf-sparql-query/) is provided at `http://<your_host>/<your_db>/_design/sessel/sparql.html`. At the moment, it is GUI-based only because CouchDB does not allow web services to be described as JavaScript in replicable design documents yet. As a workaround, a [companion tool based on Node](https://github.com/agrueneberg/Sessel/tree/node) can be put in front of Sessel to expose its SPARQL endpoint on the web, or a standalone SPARQL processors such as [ARQ](http://jena.sourceforge.net/ARQ/) can be used to refer to the generated triples:
+
+    SELECT *
+    FROM <http://<your_host>/<your_db>/_design/sessel/_rewrite/export.ttl>
+    WHERE {
+        ?s ?p ?o .
+    }
+
+
+Document Conversion
+-------------------
+
+Each JSON document is broken down to key-value pairs. Each key-value pair represents a triple, key and value being predicate and object, respectively. The value of the special key-value pair with the key `_id` ensuring the uniqueness of a document serves as the subject of the generated triple.
+
+### Data type mapping
+
+The data types of JSON are mapped to the data types of XML as specified in [XML Schema Part 2: Datatypes Second Edition](http://www.w3.org/TR/xmlschema-2/).
+
+* `string` → `xsd:string`
+* `array` → `xsd:string`
+* `object` → `xsd:string`
+* `null` → `xsd:string`
+* `number` → `xsd:integer` or `xsd:double`
+* `boolean` → `xsd:boolean`

@@ -1,120 +1,159 @@
 [
     {
-        "from" : "/",
-        "to" : "_list/triples/spo"
-    },
-    {
-        "from" : "/s/:subject/p/:predicate/o/:object",
-        "to" : "_list/triples/spo",
-        "query" : {
-            "key" : [":subject", ":predicate", ":object"]
+        "from": "/query/",
+        "to": "_list/triples/spo",
+        "query": {
+            "format": "json"
         }
     },
     {
-        "from" : "/s/:subject/o/:object/p/:predicate",
-        "to" : "_list/triples/spo",
-        "query" : {
-            "key" : [":subject", ":predicate", ":object"]
+        "from": "/query/s/:subject/p/:predicate/o/:object",
+        "to": "_list/triples/spo",
+        "query": {
+            "key": [":subject", ":predicate", ":object"],
+            "format": "json"
         }
     },
     {
-        "from" : "/s/:subject/p/:predicate",
-        "to" : "_list/triples/spo",
-        "query" : {
-            "startkey" : [":subject", ":predicate"],
-            "endkey" : [":subject", ":predicate", {}]
+        "from": "/query/s/:subject/o/:object/p/:predicate",
+        "to": "_list/triples/spo",
+        "query": {
+            "key": [":subject", ":predicate", ":object"],
+            "format": "json"
         }
     },
     {
-        "from" : "/s/:subject/o/:object",
-        "to" : "_list/triples/osp",
-        "query" : {
-            "startkey" : [":object", ":subject"],
-            "endkey" : [":object", ":subject", {}]
+        "from": "/query/s/:subject/p/:predicate",
+        "to": "_list/triples/spo",
+        "query": {
+            "startkey": [":subject", ":predicate"],
+            "endkey": [":subject", ":predicate", {}],
+            "format": "json"
         }
     },
     {
-        "from" : "/s/:subject/",
-        "to" : "_list/triples/spo",
-        "query" : {
-            "startkey" : [":subject"],
-            "endkey" : [":subject", {}]
+        "from": "/query/s/:subject/o/:object",
+        "to": "_list/triples/osp",
+        "query": {
+            "startkey": [":object", ":subject"],
+            "endkey": [":object", ":subject", {}],
+            "format": "json"
         }
     },
     {
-        "from" : "/p/:predicate/o/:object/s/:subject",
-        "to" : "_list/triples/pos",
-        "query" : {
-            "key" : [":predicate", ":object", ":subject"]
+        "from": "/query/s/:subject/",
+        "to": "_list/triples/spo",
+        "query": {
+            "startkey": [":subject"],
+            "endkey": [":subject", {}],
+            "format": "json"
         }
     },
     {
-        "from" : "/p/:predicate/s/:subject/o/:object",
-        "to" : "_list/triples/pos",
-        "query" : {
-            "key" : [":predicate", ":object", ":subject"]
+        "from": "/query/p/:predicate/o/:object/s/:subject",
+        "to": "_list/triples/pos",
+        "query": {
+            "key": [":predicate", ":object", ":subject"],
+            "format": "json"
         }
     },
     {
-        "from" : "/p/:predicate/o/:object",
-        "to" : "_list/triples/pos",
-        "query" : {
-            "startkey" : [":predicate", ":object"],
-            "endkey" : [":predicate", ":object", {}]
+        "from": "/query/p/:predicate/s/:subject/o/:object",
+        "to": "_list/triples/pos",
+        "query": {
+            "key": [":predicate", ":object", ":subject"],
+            "format": "json"
         }
     },
     {
-        "from" : "/p/:predicate/s/:subject",
-        "to" : "_list/triples/spo",
-        "query" : {
-            "startkey" : [":subject", ":predicate"],
-            "endkey" : [":subject", ":predicate", {}]
+        "from": "/query/p/:predicate/o/:object",
+        "to": "_list/triples/pos",
+        "query": {
+            "startkey": [":predicate", ":object"],
+            "endkey": [":predicate", ":object", {}],
+            "format": "json"
         }
     },
     {
-        "from" : "/p/:predicate/",
-        "to" : "_list/triples/pos",
-        "query" : {
-            "startkey" : [":predicate"],
-            "endkey" : [":predicate", {}]
+        "from": "/query/p/:predicate/s/:subject",
+        "to": "_list/triples/spo",
+        "query": {
+            "startkey": [":subject", ":predicate"],
+            "endkey": [":subject", ":predicate", {}],
+            "format": "json"
         }
     },
     {
-        "from" : "/o/:object/s/:subject/p/:predicate",
-        "to" : "_list/triples/osp",
-        "query" : {
-            "key" : [":object", ":subject", ":predicate"]
+        "from": "/query/p/:predicate/",
+        "to": "_list/triples/pos",
+        "query": {
+            "startkey": [":predicate"],
+            "endkey": [":predicate", {}],
+            "format": "json"
         }
     },
     {
-        "from" : "/o/:object/p/:predicate/s/:subject",
-        "to" : "_list/triples/osp",
-        "query" : {
-            "key" : [":object", ":subject", ":predicate"]
+        "from": "/query/o/:object/s/:subject/p/:predicate",
+        "to": "_list/triples/osp",
+        "query": {
+            "key": [":object", ":subject", ":predicate"],
+            "format": "json"
         }
     },
     {
-        "from" : "/o/:object/s/:subject",
-        "to" : "_list/triples/osp",
-        "query" : {
-            "startkey" : [":object", ":subject"],
-            "endkey" : [":object", ":subject", {}]
+        "from": "/query/o/:object/p/:predicate/s/:subject",
+        "to": "_list/triples/osp",
+        "query": {
+            "key": [":object", ":subject", ":predicate"],
+            "format": "json"
         }
     },
     {
-        "from" : "/o/:object/p/:predicate",
-        "to" : "_list/triples/pos",
-        "query" : {
-            "startkey" : [":predicate", ":object"],
-            "endkey" : [":predicate", ":object", {}]
+        "from": "/query/o/:object/s/:subject",
+        "to": "_list/triples/osp",
+        "query": {
+            "startkey": [":object", ":subject"],
+            "endkey": [":object", ":subject", {}],
+            "format": "json"
         }
     },
     {
-        "from" : "/o/:object/",
-        "to" : "_list/triples/osp",
-        "query" : {
-            "startkey" : [":object"],
-            "endkey" : [":object", {}]
+        "from": "/query/o/:object/p/:predicate",
+        "to": "_list/triples/pos",
+        "query": {
+            "startkey": [":predicate", ":object"],
+            "endkey": [":predicate", ":object", {}],
+            "format": "json"
+        }
+    },
+    {
+        "from": "/query/o/:object/",
+        "to": "_list/triples/osp",
+        "query": {
+            "startkey": [":object"],
+            "endkey": [":object", {}],
+            "format": "json"
+        }
+    },
+    {
+        "from": "/export.nt",
+        "to": "_list/triples/spo",
+        "query": {
+            "format": "ntriples"
+        }
+    },
+    {
+        "from": "/export.ttl",
+        "to": "_list/triples/spo",
+        "query": {
+            "format": "turtle"
+        }
+    },
+    {
+        "from": "/export.rdf",
+        "to": "_list/triples/spo",
+        "query": {
+            "format": "rdfxml"
         }
     }
 ]

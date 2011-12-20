@@ -108,17 +108,6 @@ function (head, req) {
     xmlTools = require("lib/xmlTools");
 
     /**
-     * Output HTML (basically, those are re-formatted N-Triples).
-     */
-    provides("html", function () {
-        formatTriples(function (triple) {
-            send(triple.join(" ").replace(/</g, "&lt;").replace(/>/g, "&gt;") + " .<br />");
-        }, {
-            typeLiterals: true
-        });
-    });
-
-    /**
      * Output N-Triples.
      * "The Internet media type / MIME type of N-Triples is text/plain." (doh)
      * TODO: "Character encoding is 7-bit US-ASCII."

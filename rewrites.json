@@ -139,21 +139,21 @@
         "from": "/export.nt",
         "to": "_list/triples/spo",
         "query": {
-            "format": "ntriples"
+            "format": "nt"
         }
     },
     {
         "from": "/export.ttl",
         "to": "_list/triples/spo",
         "query": {
-            "format": "turtle"
+            "format": "ttl"
         }
     },
     {
         "from": "/export.rdf",
         "to": "_list/triples/spo",
         "query": {
-            "format": "rdfxml"
+            "format": "rdf"
         }
     }
 ]

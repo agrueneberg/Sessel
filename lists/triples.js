@@ -112,8 +112,8 @@ function (head, req) {
      * "The Internet media type / MIME type of N-Triples is text/plain." (doh)
      * TODO: "Character encoding is 7-bit US-ASCII."
      */
-    registerType("ntriples", "text/plain");
-    provides("ntriples", function () {
+    registerType("nt", "text/plain");
+    provides("nt", function () {
         start({
             "headers": {
                 "Content-Disposition": "attachment; filename=" + req.info.db_name + ".nt"
@@ -129,8 +129,8 @@ function (head, req) {
     /**
      * Output Turtle (Terse RDF Triple Language).
      */
-    registerType("turtle", "text/turtle");
-    provides("turtle", function () {
+    registerType("ttl", "text/turtle");
+    provides("ttl", function () {
         var prefixes, firstSubject, currentSubject;
         start({
             "headers": {
@@ -170,8 +170,8 @@ function (head, req) {
     /**
      * Output RDF/XML.
      */
-    registerType("rdfxml", "application/rdf+xml");
-    provides("rdfxml", function () {
+    registerType("rdf", "application/rdf+xml");
+    provides("rdf", function () {
         start({
             "headers": {
                 "Content-Disposition": "attachment; filename=" + req.info.db_name + ".rdf"

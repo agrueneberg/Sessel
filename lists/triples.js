@@ -63,6 +63,7 @@ function (head, req) {
             switch (annotations.objectType) {
                 case "object":
                 case "array":
+                case "null":
                     // Escape quotation marks.
                     formattedTriple[2] = "\"" + triple[2].replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\"";
                     break;
@@ -80,6 +81,7 @@ function (head, req) {
                     case "string":
                     case "object":
                     case "array":
+                    case "null":
                     case "_attachment":
                         formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#string>";
                         break;
@@ -203,6 +205,7 @@ function (head, req) {
                 case "string":
                 case "object":
                 case "array":
+                case "null":
                 case "_attachment":
                     type = "xsd:string";
                     break;

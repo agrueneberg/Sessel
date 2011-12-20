@@ -38,44 +38,67 @@ function (head, req) {
 
     /**
      * Format triples and return each one separately.
-     * @param [prefixes] Table of prefixes to build qnames.
      * @param callback
+     * @param [opts]
+     *        - prefixes Table of prefixes to build qnames.
+     *        - typeLiterals True if literals should be typed.
      * @return Formatted triple
      */
-    formatTriples = function (prefixes, callback) {
-        // prefixes is optional.
-        if (typeof prefixes === "function") {
-            callback = prefixes;
-            prefixes = null;
-        }
+    formatTriples = function (callback, opts) {
         tripleIterator(function (triple, annotations) {
-            var formattedTriple;
+            var prefixes, typeLiterals, formattedTriple;
+            opts = opts || {};
+            prefixes = opts.prefixes || null;
+            typeLiterals = opts.typeLiterals || false;
             formattedTriple = [];
-            if (prefixes === null || prefixes[baseUri] === undefined) {
-                // Use a URI if no suitable prefix can be found.
-                formattedTriple[0] = "<" + baseUri + triple[0] + ">";
-                formattedTriple[1] = "<" + baseUri + "verb/" + triple[1] + ">";
-            } else {
+            if (prefixes !== null && prefixes[baseUri] !== undefined) {
                 // Use qnames if the URI can be resolved to a prefix.
                 formattedTriple[0] = prefixes[baseUri] + ":" + triple[0];
                 formattedTriple[1] = prefixes[baseUri + "verb/"] + ":" + triple[1];
+            } else {
+                // Use a URI if no suitable prefix can be found.
+                formattedTriple[0] = "<" + baseUri + triple[0] + ">";
+                formattedTriple[1] = "<" + baseUri + "verb/" + triple[1] + ">";
             }
             switch (annotations.objectType) {
-                // Add quotation marks for non-string object literals.
                 case "object":
                 case "array":
-                case "number":
-                    // TODO: Are embedded quotation marks escaped correctly?
-                    formattedTriple[2] = "\"" + triple[2].replace(/"/g, "\\\"") + "\"";
+                    // Escape quotation marks.
+                    formattedTriple[2] = "\"" + triple[2].replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\"";
                     break;
                 case "_attachment":
+                    // Expand URLs to attachments.
                     formattedTriple[2] = "\"" + baseUri + triple[0] + "/" + triple[2] + "\"";
                     break;
                 default:
                     formattedTriple[2] = triple[2];
                     break;
             }
-            callback(formattedTriple);
+            // Type literals.
+            if (typeLiterals === true) {
+                switch (annotations.objectType) {
+                    case "string":
+                    case "object":
+                    case "array":
+                    case "_attachment":
+                        formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#string>";
+                        break;
+                    case "number":
+                        // Wrap number into quotation marks first.
+                        formattedTriple[2] = "\"" + formattedTriple[2] + "\"";
+                        if (triple[2] % 1 === 0) {
+                            formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#integer>";
+                        } else {
+                            formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#double>";
+                        }
+                        break;
+                    case "boolean":
+                        formattedTriple[2] = "\"" + formattedTriple[2] + "\"";
+                        formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#boolean>";
+                        break;
+                }
+            }
+            callback(formattedTriple, annotations);
         });
     };
 
@@ -90,6 +113,8 @@ function (head, req) {
     provides("html", function () {
         formatTriples(function (triple) {
             send(triple.join(" ").replace(/</g, "&lt;").replace(/>/g, "&gt;") + " .<br />");
+        }, {
+            typeLiterals: true
         });
     });
 
@@ -107,6 +132,8 @@ function (head, req) {
         });
         formatTriples(function (triple) {
             send(triple.join(" ") + " .\n");
+        }, {
+            typeLiterals: true
         });
     });
 
@@ -128,7 +155,7 @@ function (head, req) {
             send("@prefix " + prefixes[uri] + ": <" + uri + "> .\n");
         });
         firstSubject = true;
-        formatTriples(prefixes, function (triple) {
+        formatTriples(function (triple, annotations) {
             // Abbreviate Turtle.
             if (firstSubject === true || currentSubject !== triple[0]) {
                 // Skip first period.
@@ -144,6 +171,8 @@ function (head, req) {
                 send(" ;\n    " + triple[1] + " " + triple[2]);
             }
             currentSubject = triple[0];
+        }, {
+            prefixes: prefixes
         });
         // Send the final period.
         send(" .");
@@ -162,11 +191,12 @@ function (head, req) {
         send("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         send("<rdf:RDF\n");
         send("  xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n");
+        send("  xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n");
         send("  xmlns:sessel=\"" + baseUri + "\"\n");
         send("  xmlns:sesselVerb=\"" + baseUri + "verb/\"");
         send(">\n");
         tripleIterator(function (triple, annotations) {
-            var description, object;
+            var description, object, type;
             // Remove quotation marks from string object literals
             switch (annotations.objectType) {
                 case "string":
@@ -179,10 +209,32 @@ function (head, req) {
                     object = triple[2];
                     break;
             }
+            // Type literal.
+            switch (annotations.objectType) {
+                case "string":
+                case "object":
+                case "array":
+                case "_attachment":
+                    type = "xsd:string";
+                    break;
+                case "number":
+                    if (triple[2] % 1 === 0) {
+                        type = "xsd:integer";
+                    } else {
+                        type = "xsd:double";
+                    }
+                    break;
+                case "boolean":
+                    type = "xsd:boolean";
+                    break;
+                default:
+                    type = null;
+                    break;
+            }
             // Escape object literals.
             description = [
                 "  <rdf:Description rdf:about=\"" + baseUri + triple[0] + "\">",
-                "    <sesselVerb:" + triple[1] + ">" + xmlTools.escape(object) + "</sesselVerb:" + triple[1] + ">",
+                "    <sesselVerb:" + triple[1] + ((type !== null) ? " rdf:datatype=\"" + type + "\">" : ">") + xmlTools.escape(object) + "</sesselVerb:" + triple[1] + ">",
                 "  </rdf:Description>"
             ].join("\n");
             send(description + "\n");
@@ -205,7 +257,7 @@ function (head, req) {
             }
             send("  " + JSON.stringify(triple));
         });
-        send("]");
+        send("\n]");
     });
 
 }

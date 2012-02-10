@@ -42,43 +42,6 @@
         </div>
         <script src="../../../_utils/script/jquery.js"></script>
         <script src="scripts/rdfstore.js"></script>
-        <script>
-            $(function () {
-                var loc, baseUri, store;
-                loc = window.location;
-                baseUri = loc.protocol + "//" + loc.host + "/" + loc.pathname.split("/")[1] + "/_design/sessel/_rewrite/export.ttl";
-                store = rdfstore.create();
-                store.load("remote", baseUri, function (success, results) {
-                    $("#submit").removeClass("disabled");
-                    console.log("*** Imported %d triples from Sessel", results);
-                });
-                $("#submit").click(function () {
-                    var query;
-                    query = $("#query").val();
-                    try {
-                        store.execute(query, function (success, results) {
-                            var table;
-                            table = $("#results");
-                            table.empty();
-                            results.forEach(function (result) {
-                                var row;
-                                row = $("<tr></tr>");
-                                row.append("<td>" + result.a.value + "</td>");
-                                row.append("<td>" + result.b.value + "</td>");
-                                row.append("<td>" + result.c.value + "</td>");
-                                table.append(row);
-                            });
-                            $("#result-pane").show(100);
-                        });
-                    } catch (e) {
-                        console.error(e.name, e.message);
-                    }
-                    return false;
-                });
-                $("#reset").click(function () {
-                    $("#result-pane").hide(100);
-                });
-            });
-        </script>
+        <script src="scripts/sessel.js"></script>
     </body>
 </html>

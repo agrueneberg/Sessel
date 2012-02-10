@@ -225,22 +225,4 @@ function (head, req) {
         send("</rdf:RDF>");
     });
 
-    /**
-     * Output JSON (mainly for the SPARQL endpoint).
-     */
-    provides("json", function () {
-        var firstRow;
-        firstRow = true;
-        send("[\n");
-        formatTriples(function (triple) {
-            if (firstRow === true) {
-                firstRow = false;
-            } else {
-                send(",\n");
-            }
-            send("  " + JSON.stringify(triple));
-        });
-        send("\n]");
-    });
-
 }

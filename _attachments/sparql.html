@@ -2,42 +2,13 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title></title>
+        <title>SPARQL Endpoint</title>
         <link rel="stylesheet" href="styles/bootstrap.css" />
-        <style type="text/css">
-            html, body {
-                background-color: #eee;
-            }
-            body {
-                padding-top: 40px;
-            }
-            .content {
-                background-color: #fff;
-                padding: 20px;
-                margin: 0 -20px;
-                -webkit-border-radius: 0 0 6px 6px;
-                -moz-border-radius: 0 0 6px 6px;
-                border-radius: 0 0 6px 6px;
-                -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-                -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-                box-shadow: 0 1px 2px rgba(0,0,0,.15);
-            }
-            .actions {
-                border: 1px solid #ddd;
-            }
-            .page-header {
-                background-color: #f5f5f5;
-                padding: 20px 20px 10px;
-                margin: -20px -20px 20px;
-            }
-            #result-pane {
-                display: none;
-            }
-        </style>
+        <link rel="stylesheet" href="styles/sessel.css" />
     </head>
     <body>
-        <div class="topbar">
-            <div class="fill">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
                 <div class="container">
                     <a class="brand" href="#">Sessel</a>
                 </div>
@@ -48,23 +19,23 @@
                 <div class="page-header">
                     <h1>SPARQL Endpoint</h1>
                 </div>
-                <div>
-                    <form>
-                        <div class="clearfix">
-                            <label for="query">SPARQL Query</label>
-                            <div class="input">
-                                <textarea id="query" class="xxlarge" rows="6">SELECT * WHERE {?a ?b ?c .} LIMIT 25</textarea>
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="control-group">
+                            <label for="query" class="control-label">SPARQL Query</label>
+                            <div class="controls">
+                                <textarea id="query" class="input-xxlarge" rows="6">SELECT * WHERE {?a ?b ?c .} LIMIT 25</textarea>
                             </div>
                         </div>
-                        <div class="actions">
-                            <input type="submit" id="submit" class="btn primary" value="Query" />
+                        <div class="form-actions">
+                            <input type="submit" id="submit" class="btn btn-primary disabled" value="Query" />
                             <input type="reset" id="reset" class="btn" value="Reset" />
                         </div>
-                    </form>
-                </div>
+                    </fieldset>
+                </form>
                 <div id="result-pane">
-                    <h3>Results</h3>
-                    <table id="results" class="zebra-striped">
+                    <h2>Results</h2>
+                    <table id="results" class="table table-bordered table-striped table-condensed">
                     </table>
                 </div>
             </div>
@@ -72,13 +43,13 @@
         <script src="../../../_utils/script/jquery.js"></script>
         <script src="scripts/rdfstore.js"></script>
         <script>
-            var store;
             $(function () {
-                var loc, baseUri;
+                var loc, baseUri, store;
                 loc = window.location;
                 baseUri = loc.protocol + "//" + loc.host + "/" + loc.pathname.split("/")[1] + "/_design/sessel/_rewrite/export.ttl";
                 store = rdfstore.create();
                 store.load("remote", baseUri, function (success, results) {
+                    $("#submit").removeClass("disabled");
                     console.log("*** Imported %d triples from Sessel", results);
                 });
                 $("#submit").click(function () {
@@ -92,9 +63,9 @@
                             results.forEach(function (result) {
                                 var row;
                                 row = $("<tr></tr>");
-                                row.append("<td>" + result.a.value + "<td>");
-                                row.append("<td>" + result.b.value + "<td>");
-                                row.append("<td>" + result.c.value + "<td>");
+                                row.append("<td>" + result.a.value + "</td>");
+                                row.append("<td>" + result.b.value + "</td>");
+                                row.append("<td>" + result.c.value + "</td>");
                                 table.append(row);
                             });
                             $("#result-pane").show(100);

@@ -1,10 +1,14 @@
 $(function () {
     var loc, baseUri, store;
+    // Initiate loading state for submit button.
+    $("#submit").button("loading");
+    // Load triples.
     loc = window.location;
     baseUri = loc.protocol + "//" + loc.host + "/" + loc.pathname.split("/")[1] + "/_design/sessel/_rewrite/export.ttl";
     store = rdfstore.create();
     store.load("remote", baseUri, function (success, results) {
-        $("#submit").removeClass("disabled");
+        // Reset loading state for submit button.
+        $("#submit").button("reset");
         console.log("*** Imported %d triples from Sessel", results);
     });
     $("#submit").click(function () {

@@ -7,7 +7,7 @@ Sessel is a CouchApp for [CouchDB](http://couchdb.apache.org) that generates RDF
 Installation
 ------------
 
-Sessel is designed to be replicated or pushed into any existing CouchDB database. Therefore, there is more than one way to install it.
+Sessel is designed to be replicated or pushed into any existing CouchDB database. There is more than one way to install it.
 
 ### Install Sessel using replication
 
@@ -21,7 +21,7 @@ Replicate [an existing deployment of Sessel](http://agrueneberg.iriscouch.com/se
            \"filter\":\"vacuum/rw\"}" \
       http://<your_host>/_replicate
 
-### Install Sessel using [CouchApp](http://couchapp.org)
+### Install Sessel using [CouchApp](http://couchapp.org) or similar tools
 
 Clone this repository and use [CouchApp](http://couchapp.org) to push Sessel to `<your_host>/<your_db>`:
 
@@ -42,7 +42,9 @@ The generated triples can be exported to various RDF serialization formats by ca
 SPARQL Endpoint
 ---------------
 
-A GUI-based SPARQL endpoint that understands the `SELECT` subset of the [SPARQL query language](http://www.w3.org/TR/rdf-sparql-query/) is provided at `http://<your_host>/<your_db>/_design/sessel/sparql.html`. At the moment, it is GUI-based only because CouchDB does not allow web services to be described as JavaScript in replicable design documents yet. As a workaround, a [companion tool based on Node](https://github.com/agrueneberg/Sessel/tree/node) can be put in front of Sessel to expose its SPARQL endpoint on the web, or a standalone SPARQL processors such as [ARQ](http://jena.sourceforge.net/ARQ/) can be used to refer to the generated triples:
+Sessel bundles Antonio Garrote's fantastic [rdfstore-js](https://github.com/antoniogarrote/rdfstore-js), an RDF store with SPARQL support written entirely in JavaScript. A graphical query interface can be accessed at `http://<your_host>/<your_db>/_design/sessel/sparql.html`.
+
+Alternatively, a standalone SPARQL processors such as [ARQ](http://jena.sourceforge.net/ARQ/) can be used to import the generated triples through the export interface:
 
     SELECT *
     FROM <http://<your_host>/<your_db>/_design/sessel/_rewrite/export.ttl>

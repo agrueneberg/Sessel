@@ -1,13 +1,13 @@
 $(function () {
     var loc, baseUri, store;
-    // Initiate loading state for submit button.
+ // Initiate loading state for submit button.
     $("#submit").button("loading");
-    // Load triples.
+ // Load triples.
     loc = window.location;
     baseUri = loc.protocol + "//" + loc.host + "/" + loc.pathname.split("/")[1] + "/_design/sessel/_rewrite/export.ttl";
     store = rdfstore.create();
     store.load("remote", baseUri, function (success, results) {
-        // Reset loading state for submit button.
+     // Reset loading state for submit button.
         $("#submit").button("reset");
         console.log("*** Imported %d triples from Sessel", results);
     });
@@ -20,14 +20,14 @@ $(function () {
                 table = $("#results");
                 table.empty();
                 if (results.length > 0) {
-                    // Create table header row.
+                 // Create table header row.
                     keys = Object.keys(results[0]);
                     row = $("<tr></tr>");
                     keys.forEach(function (key) {
                         row.append("<th>" + key + "</th>");
                     });
                     table.append(row);
-                    // Create table body rows.
+                 // Create table body rows.
                     results.forEach(function (result) {
                         row = $("<tr></tr>");
                         keys.forEach(function (key) {

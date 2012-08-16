@@ -8,7 +8,7 @@ function (head, req) {
     if (req.query.hasOwnProperty("base_uri") === true) {
         baseUri = req.query["base_uri"];
     } else {
-        // "Host" is a mandatory header since HTTP/1.1.
+     // "Host" is a mandatory header since HTTP/1.1.
         baseUri = "http://" + req.headers["Host"] + "/" + req.info.db_name + "/";
     }
 
@@ -49,11 +49,11 @@ function (head, req) {
             typeLiterals = opts.typeLiterals || false;
             formattedTriple = [];
             if (prefixes !== null && prefixes[baseUri] !== undefined) {
-                // Use qnames if the URI can be resolved to a prefix.
+             // Use qnames if the URI can be resolved to a prefix.
                 formattedTriple[0] = prefixes[baseUri] + ":" + triple[0];
                 formattedTriple[1] = prefixes[baseUri + "property/"] + ":" + triple[1];
             } else {
-                // Use a URI if no suitable prefix can be found.
+             // Use a URI if no suitable prefix can be found.
                 formattedTriple[0] = "<" + baseUri + triple[0] + ">";
                 formattedTriple[1] = "<" + baseUri + "property/" + triple[1] + ">";
             }
@@ -61,18 +61,18 @@ function (head, req) {
                 case "object":
                 case "array":
                 case "null":
-                    // Escape quotation marks.
+                 // Escape quotation marks.
                     formattedTriple[2] = "\"" + triple[2].replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\"";
                     break;
                 case "_attachment":
-                    // Expand URLs to attachments.
+                 // Expand URLs to attachments.
                     formattedTriple[2] = "\"" + baseUri + triple[0] + "/" + triple[2] + "\"";
                     break;
                 default:
                     formattedTriple[2] = triple[2];
                     break;
             }
-            // Type literals.
+         // Type literals.
             if (typeLiterals === true) {
                 switch (annotations.objectType) {
                     case "string":
@@ -83,7 +83,7 @@ function (head, req) {
                         formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#string>";
                         break;
                     case "number":
-                        // Wrap number into quotation marks first.
+                     // Wrap number into quotation marks first.
                         formattedTriple[2] = "\"" + formattedTriple[2] + "\"";
                         if (triple[2] % 1 === 0) {
                             formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#integer>";
@@ -151,25 +151,25 @@ function (head, req) {
         });
         firstSubject = true;
         formatTriples(function (triple, annotations) {
-            // Abbreviate Turtle.
+         // Abbreviate Turtle.
             if (firstSubject === true || currentSubject !== triple[0]) {
-                // Skip first period.
+             // Skip first period.
                 if (firstSubject === true) {
                     firstSubject = false;
                 } else {
                     send(" .\n");
                 }
-                // Send the full triple.
+             // Send the full triple.
                 send(triple.join(" "));
             } else {
-                // Send the abbreviated triple.
+             // Send the abbreviated triple.
                 send(" ;\n    " + triple[1] + " " + triple[2]);
             }
             currentSubject = triple[0];
         }, {
             prefixes: prefixes
         });
-        // Send the final period.
+     // Send the final period.
         send(" .");
     });
 
@@ -192,7 +192,7 @@ function (head, req) {
         send(">\n");
         tripleIterator(function (triple, annotations) {
             var description, object, type;
-            // Remove quotation marks from string object literals
+         // Remove quotation marks from string object literals
             switch (annotations.objectType) {
                 case "string":
                     object = triple[2].replace(/"([^"]*)"/, "$1");
@@ -204,7 +204,7 @@ function (head, req) {
                     object = triple[2];
                     break;
             }
-            // Type literal.
+         // Type literal.
             switch (annotations.objectType) {
                 case "string":
                 case "object":
@@ -227,7 +227,7 @@ function (head, req) {
                     type = null;
                     break;
             }
-            // Escape object literals.
+         // Escape object literals.
             description = [
                 "  <rdf:Description rdf:about=\"" + baseUri + triple[0] + "\">",
                 "    <" + prefix + "Prop:" + triple[1] + ((type !== null) ? " rdf:datatype=\"" + type + "\">" : ">") + xmlEscape(object) + "</" + prefix + "Prop:" + triple[1] + ">",

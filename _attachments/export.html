@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Export</title>
+        <link rel="stylesheet" href="styles/bootstrap.css" />
+        <link rel="stylesheet" href="styles/sessel.css" />
+    </head>
+    <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#">Sessel</a>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="content">
+                <div class="page-header">
+                    <h1>Export</h1>
+                </div>
+                <form id="export-form" class="form-horizontal" method="GET">
+                    <fieldset>
+                        <div class="control-group">
+                            <label for="query" class="control-label">Base URI</label>
+                            <div class="controls">
+                                <input name="base_uri" type="text" placeholder="Base URI" />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="query" class="control-label">Prefix</label>
+                            <div class="controls">
+                                <input name="prefix" type="text" placeholder="Prefix" />
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="export-btn btn" data-export-format="nt">Export as N-Triples</button>
+                            <button class="export-btn btn" data-export-format="ttl">Export as Turtle</button>
+                            <button class="export-btn btn" data-export-format="rdf">Export as RDF/XML</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+        <script src="scripts/jquery.js"></script>
+        <script src="scripts/export.js"></script>
+    </body>
+</html>

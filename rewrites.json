@@ -1,21 +1,21 @@
 [
     {
         "from": "/export.nt",
-        "to": "_list/triples/triples",
+        "to": "_list/serialize/triples",
         "query": {
             "format": "nt"
         }
     },
     {
         "from": "/export.ttl",
-        "to": "_list/triples/triples",
+        "to": "_list/serialize/triples",
         "query": {
             "format": "ttl"
         }
     },
     {
         "from": "/export.rdf",
-        "to": "_list/triples/triples",
+        "to": "_list/serialize/triples",
         "query": {
             "format": "rdf"
         }

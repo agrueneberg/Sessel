@@ -51,11 +51,11 @@ function (head, req) {
             if (prefixes !== null && prefixes[baseUri] !== undefined) {
                 // Use qnames if the URI can be resolved to a prefix.
                 formattedTriple[0] = prefixes[baseUri] + ":" + triple[0];
-                formattedTriple[1] = prefixes[baseUri + "verb/"] + ":" + triple[1];
+                formattedTriple[1] = prefixes[baseUri + "property/"] + ":" + triple[1];
             } else {
                 // Use a URI if no suitable prefix can be found.
                 formattedTriple[0] = "<" + baseUri + triple[0] + ">";
-                formattedTriple[1] = "<" + baseUri + "verb/" + triple[1] + ">";
+                formattedTriple[1] = "<" + baseUri + "property/" + triple[1] + ">";
             }
             switch (annotations.objectType) {
                 case "object":
@@ -145,7 +145,7 @@ function (head, req) {
         });
         prefixes = {};
         prefixes[baseUri] = prefix;
-        prefixes[baseUri + "verb/"] = prefix + "Verb";
+        prefixes[baseUri + "property/"] = prefix + "Prop";
         Object.keys(prefixes).forEach(function (uri) {
             send("@prefix " + prefixes[uri] + ": <" + uri + "> .\n");
         });
@@ -188,7 +188,7 @@ function (head, req) {
         send("  xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n");
         send("  xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n");
         send("  xmlns:" + prefix + "=\"" + baseUri + "\"\n");
-        send("  xmlns:" + prefix + "Verb=\"" + baseUri + "verb/\"");
+        send("  xmlns:" + prefix + "Prop=\"" + baseUri + "property/\"");
         send(">\n");
         tripleIterator(function (triple, annotations) {
             var description, object, type;
@@ -230,7 +230,7 @@ function (head, req) {
             // Escape object literals.
             description = [
                 "  <rdf:Description rdf:about=\"" + baseUri + triple[0] + "\">",
-                "    <" + prefix + "Verb:" + triple[1] + ((type !== null) ? " rdf:datatype=\"" + type + "\">" : ">") + xmlEscape(object) + "</" + prefix + "Verb:" + triple[1] + ">",
+                "    <" + prefix + "Prop:" + triple[1] + ((type !== null) ? " rdf:datatype=\"" + type + "\">" : ">") + xmlEscape(object) + "</" + prefix + "Prop:" + triple[1] + ">",
                 "  </rdf:Description>"
             ].join("\n");
             send(description + "\n");

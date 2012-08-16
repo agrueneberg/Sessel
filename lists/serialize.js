@@ -5,7 +5,7 @@ function (head, req) {
     /**
      * The base URI.
      */
-    if (req.query.hasOwnProperty("base_uri") === true) {
+    if (req.query.hasOwnProperty("base_uri") === true && req.query["base_uri"] !== "") {
         baseUri = req.query["base_uri"];
     } else {
      // "Host" is a mandatory header since HTTP/1.1.
@@ -15,7 +15,7 @@ function (head, req) {
     /**
      * The prefix of the base URI.
      */
-     if (req.query.hasOwnProperty("prefix") === true) {
+     if (req.query.hasOwnProperty("prefix") === true && req.query.prefix !== "") {
         prefix = req.query["prefix"];
      } else {
         prefix = "sessel";

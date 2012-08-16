@@ -11,12 +11,12 @@ Sessel is designed to be replicated or pushed into any existing CouchDB database
 
 ### Install Sessel using replication
 
-Replicate [an existing deployment of Sessel](http://agrueneberg.iriscouch.com/sessel/) to `<your_host>/<your_db`:
+Replicate [an existing deployment of Sessel](http://couchdb.gutpassfilter.de/sessel/) to `<your_host>/<your_db`:
 
     curl \
       -X POST \
       -H "Content-Type:application/json" \
-      -d "{\"source\":\"http://agrueneberg.iriscouch.com/sessel\", \
+      -d "{\"source\":\"http://couchdb.gutpassfilter.de/sessel\", \
            \"target\":\"http://<your_host>/<your_db>\", \
            \"filter\":\"vacuum/rw\"}" \
       http://<your_host>/_replicate

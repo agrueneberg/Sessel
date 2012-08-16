@@ -38,6 +38,14 @@ The generated triples can be exported to various RDF serialization formats by ca
 * `export.ttl` – Export as [Turtle](http://www.w3.org/TeamSubmission/turtle/)
 * `export.rdf` – Export as [RDF/XML](http://www.w3.org/TR/rdf-syntax-grammar/)
 
+### Changing the base URI
+
+The default base URI is `http://host/db_name/`. If you prefer a different URI, add a `base_uri` parameter to the export URL and provide a percent-encoded value, e.g. `http://<your_host>/<your_db>/_design/sessel/_rewrite/export.ttl?base_uri=http%3A%2F%2Fexample.com%2Frdf%23`.
+
+### Changing the prefix
+
+The default prefix of the base URI is `sessel`. If you prefer a different prefix, add a `prefix` parameter to the export URL and provide a value, e.g. `http://<your_host>/<your_db>/_design/sessel/_rewrite/export.ttl?base_uri=http%3A%2F%2Fexample.com%2Frdf%23&prefix=example`.
+
 
 SPARQL Endpoint
 ---------------

@@ -20,14 +20,16 @@ function (doc) {
             emit([subject, predicate, object], {
                 objectType: type
             });
-        } else if (key === "_attachments") {
-         // Special treatment for attachments.
-            attachments = Object.keys(doc["_attachments"]);
-            attachments.forEach(function (attachment) {
-                emit([doc._id, "attachment", attachment], {
-                    objectType: "_attachment"
+        } else {
+            if (key === "_attachments") {
+             // Special treatment for attachments.
+                attachments = Object.keys(doc["_attachments"]);
+                attachments.forEach(function (attachment) {
+                    emit([doc._id, "attachment", attachment], {
+                        objectType: "_attachment"
+                    });
                 });
-            });
+            }
         }
     });
 }

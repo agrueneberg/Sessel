@@ -127,8 +127,6 @@ function (head, req) {
         });
         formatTriples(function (triple) {
             send(triple.join(" ") + " .\n");
-        }, {
-            typeLiterals: true
         });
     });
 
@@ -167,7 +165,8 @@ function (head, req) {
             }
             currentSubject = triple[0];
         }, {
-            prefixes: prefixes
+            prefixes: prefixes,
+            typeLiterals: true
         });
      // Send the final period.
         send(" .");

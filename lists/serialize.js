@@ -1,6 +1,6 @@
 function (head, req) {
 
-    var baseUri, prefix, tripleIterator, formatTriples, xmlEscape;
+    var baseUri, prefix, typeLiterals, tripleIterator, formatTriples, xmlEscape;
 
     /**
      * The base URI.
@@ -19,6 +19,15 @@ function (head, req) {
         prefix = req.query["prefix"];
      } else {
         prefix = "sessel";
+     }
+
+    /**
+     * Flag to type literals.
+     */
+     if (req.query.hasOwnProperty("type_literals") === true && req.query["type_literals"] === "true") {
+        typeLiterals = true;
+     } else {
+        typeLiterals = false;
      }
 
     /**
@@ -177,7 +186,7 @@ function (head, req) {
             currentSubject = triple[0];
         }, {
             prefixes: prefixes,
-            typeLiterals: true
+            typeLiterals: typeLiterals
         });
      // Send the final period.
         send(" .");

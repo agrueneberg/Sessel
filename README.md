@@ -48,6 +48,19 @@ The default base URI is `http://host/db_name/`. If you prefer a different URI, a
 
 The default prefix of the base URI is `sessel`. If you prefer a different prefix, add a `prefix` parameter to the export URL and provide a value, e.g. `http://<your_host>/<your_db>/_design/sessel/_rewrite/export.ttl?base_uri=http%3A%2F%2Fexample.com%2Frdf%23&prefix=example`.
 
+### Data type mapping
+
+The data types of JSON are mapped to the data types of XML as specified in [XML Schema Part 2: Datatypes Second Edition](http://www.w3.org/TR/xmlschema-2/).
+
+* `string` → `xsd:string`
+* `array` → `xsd:string`
+* `object` → `xsd:string`
+* `null` → `xsd:string`
+* `number` → `xsd:integer` or `xsd:double`
+* `boolean` → `xsd:boolean`
+
+To activate data type mapping, add a `type_literals` parameter to the export URL and provide a string value `true`.
+
 
 SPARQL Endpoint
 ---------------
@@ -67,14 +80,3 @@ Document Conversion
 -------------------
 
 Each JSON document is broken down to key-value pairs. Each key-value pair represents a triple, key and value being predicate and object, respectively. The value of the special key-value pair with the key `_id` ensuring the uniqueness of a document serves as the subject of the generated triple.
-
-### Data type mapping
-
-The data types of JSON are mapped to the data types of XML as specified in [XML Schema Part 2: Datatypes Second Edition](http://www.w3.org/TR/xmlschema-2/).
-
-* `string` → `xsd:string`
-* `array` → `xsd:string`
-* `object` → `xsd:string`
-* `null` → `xsd:string`
-* `number` → `xsd:integer` or `xsd:double`
-* `boolean` → `xsd:boolean`

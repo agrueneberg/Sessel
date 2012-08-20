@@ -37,7 +37,7 @@ function (head, req) {
      * Format triples and return each one separately.
      * @param callback
      * @param [opts]
-     *        - prefixes Table of prefixes to build qnames.
+     *        - prefixes Table of prefixes to build QNames.
      *        - typeLiterals True if literals should be typed.
      * @return Formatted triple
      */
@@ -49,11 +49,22 @@ function (head, req) {
             typeLiterals = opts.typeLiterals || false;
             formattedTriple = [];
             if (prefixes !== null && prefixes[baseUri] !== undefined) {
-             // Use qnames if the URI can be resolved to a prefix.
-                formattedTriple[0] = prefixes[baseUri] + ":" + triple[0];
-                formattedTriple[1] = prefixes[baseUri + "property/"] + ":" + triple[1];
+             // Use QNames if the URI can be resolved to a prefix and the local name does
+             // not start with a number (this is an XML thing after all). We can assume that
+             // triples[0] and triples[1] are strings.
+                if (triple[0].charAt(0).match(/\d/) === null) {
+                    formattedTriple[0] = prefixes[baseUri] + ":" + triple[0];
+                } else {
+                    formattedTriple[0] = "<" + baseUri + triple[0] + ">";
+                }
+                if (triple[1].charAt(0).match(/\d/) === null) {
+                    formattedTriple[1] = prefixes[baseUri + "property/"] + ":" + triple[1];
+                } else {
+                    formattedTriple[1] = "<" + baseUri + "property/" + triple[1] + ">";
+                }
             } else {
-             // Use a URI if no suitable prefix can be found.
+             // Use a URI if no suitable prefix can be found, or the local part of the QName
+             // starts with a number.
                 formattedTriple[0] = "<" + baseUri + triple[0] + ">";
                 formattedTriple[1] = "<" + baseUri + "property/" + triple[1] + ">";
             }

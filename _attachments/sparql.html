@@ -7,37 +7,31 @@
         <link rel="stylesheet" href="stylesheets/sessel.css" />
     </head>
     <body>
-        <div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="brand" href="#">Sessel</a>
-                </div>
-            </div>
-        </div>
         <div class="container">
-            <div class="content">
-                <div class="page-header">
-                    <h1>SPARQL Endpoint</h1>
-                </div>
-                <form class="form-horizontal">
-                    <fieldset>
-                        <div class="control-group">
-                            <label for="query" class="control-label">SPARQL Query</label>
-                            <div class="controls">
-                                <textarea id="query" class="input-xxlarge" rows="6">SELECT * WHERE {?a ?b ?c .} LIMIT 25</textarea>
-                            </div>
+            <div class="page-header">
+                <h1>
+                    Sessel
+                    <small>SPARQL Endpoint</small>
+                </h1>
+            </div>
+            <form class="form-horizontal">
+                <fieldset>
+                    <div class="control-group">
+                        <label for="query" class="control-label">SPARQL Query</label>
+                        <div class="controls">
+                            <textarea id="query" class="input-xxlarge" rows="6">SELECT * WHERE {?a ?b ?c .} LIMIT 25</textarea>
                         </div>
-                        <div class="form-actions">
-                            <input type="submit" id="submit" class="btn btn-primary" data-loading-text="Loading triples..." value="Query" autocomplete="off" />
-                            <input type="reset" id="reset" class="btn" value="Reset" />
-                        </div>
-                    </fieldset>
-                </form>
-                <div id="result-pane">
-                    <h2>Results</h2>
-                    <table id="results" class="table table-bordered table-striped table-condensed">
-                    </table>
-                </div>
+                    </div>
+                    <div class="form-actions">
+                        <input type="submit" id="submit" class="btn btn-primary" data-loading-text="Loading triples..." value="Query" autocomplete="off" />
+                        <input type="reset" id="reset" class="btn" value="Reset" />
+                    </div>
+                </fieldset>
+            </form>
+            <div id="result-pane">
+                <h2>Results</h2>
+                <table id="results" class="table table-bordered table-striped table-condensed">
+                </table>
             </div>
         </div>
         <script src="scripts/jquery.js"></script>

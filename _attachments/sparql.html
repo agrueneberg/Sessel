@@ -15,18 +15,16 @@
                 </h1>
             </div>
             <form class="form-horizontal">
-                <fieldset>
-                    <div class="control-group">
-                        <label for="query" class="control-label">SPARQL Query</label>
-                        <div class="controls">
-                            <textarea id="query" class="input-xxlarge" rows="6">SELECT * WHERE {?a ?b ?c .} LIMIT 25</textarea>
-                        </div>
+                <div class="control-group">
+                    <label for="query" class="control-label">SPARQL Query</label>
+                    <div class="controls">
+                        <textarea id="query" class="input-xxlarge" rows="6">SELECT * WHERE {?a ?b ?c .} LIMIT 25</textarea>
                     </div>
-                    <div class="form-actions">
-                        <input type="submit" id="submit" class="btn btn-primary" data-loading-text="Loading triples..." value="Query" autocomplete="off" />
-                        <input type="reset" id="reset" class="btn" value="Reset" />
-                    </div>
-                </fieldset>
+                </div>
+                <div class="form-actions">
+                    <input type="submit" id="submit" class="btn btn-primary" data-loading-text="Loading triples..." value="Query" autocomplete="off" />
+                    <input type="reset" id="reset" class="btn" value="Reset" />
+                </div>
             </form>
             <div id="result-pane">
                 <h2>Results</h2>

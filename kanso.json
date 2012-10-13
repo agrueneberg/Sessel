@@ -1,0 +1,14 @@
+{
+    "name": "sessel",
+    "version": "0.1.0",
+    "description": "Generates RDF triples from CouchDB documents.",
+    "url": "https://github.com/agrueneberg/Sessel",
+    "attachments": ["export.html", "sparql.html", "scripts", "stylesheets"],
+    "modules": ["lib"],
+    "load": "lib/sessel",
+    "dependencies": {
+        "attachments": null,
+        "modules": null,
+        "properties": null
+    }
+}

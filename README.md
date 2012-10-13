@@ -4,23 +4,6 @@ Sessel
 Sessel is a CouchApp for [CouchDB](http://couchdb.apache.org) that generates RDF triples from JSON documents, which then in turn can be exported to various serialization formats, or queried through a SPARQL endpoint.
 
 
-Installation
-------------
-
-Sessel is designed to be replicated or pushed into any existing CouchDB database. There is more than one way to install it.
-
-### Install Sessel using [CouchApp](http://couchapp.org) or similar tools
-
-Clone this repository and use [CouchApp](http://couchapp.org) to push Sessel to `<your_host>/<your_db>`:
-
-    git clone git://github.com/agrueneberg/Sessel.git
-    couchapp push Sessel/ http://<your_host>/<your_db>
-
-### Install Sessel using replication
-
-Replicate an existing deployment of Sessel to `<your_host>/<your_db`.
-
-
 Export
 ------
 

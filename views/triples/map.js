@@ -9,8 +9,8 @@ function (doc) {
     keys.forEach(function (key, idx) {
         var value, type, subject, predicate, object, attachments;
         value = doc[key];
+     // Ignore CouchDB-specific properties that start with "_".
         if (key.charAt(0) !== "_") {
-         // Ignore CouchDB-specific properties that start with "_".
             type = toType(value);
          // URL encode key and property.
             subject = encodeURIComponent(doc._id);
@@ -21,8 +21,8 @@ function (doc) {
                 objectType: type
             });
         } else {
+         // Special treatment for attachments.
             if (key === "_attachments") {
-             // Special treatment for attachments.
                 attachments = Object.keys(doc["_attachments"]);
                 attachments.forEach(function (attachment) {
                     emit([doc._id, "attachment", attachment], {

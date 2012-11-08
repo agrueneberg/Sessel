@@ -19,5 +19,16 @@
         "query": {
             "format": "rdf"
         }
+    },
+    {
+        "from": "/vocab",
+        "to": "_list/vocab/vocab",
+        "query": {
+            "group": "true"
+        }
+    },
+    {
+        "from": "/:concept",
+        "to": "_show/concept/:concept"
     }
 ]

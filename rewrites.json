@@ -29,6 +29,10 @@
     },
     {
         "from": "/:concept",
-        "to": "_show/concept/:concept"
+        "to": "_list/triples/triples",
+        "query": {
+            "startkey": [":concept"],
+            "endkey": [":concept", {}]
+        }
     }
 ]

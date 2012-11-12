@@ -45,12 +45,12 @@ function (head, req) {
      * Format triple.
      * @param triple
      * @param annotations
-     * @param callback
      * @param [opts]
      *        - prefixes Table of prefixes to build QNames.
      *        - typeLiterals True if literals should be typed.
+     * @return Formatted triple
      */
-    formatTriple = function (triple, annotations, callback, opts) {
+    formatTriple = function (triple, annotations, opts) {
         var prefixes, typeLiterals, formattedTriple;
         opts = opts || {};
         prefixes = opts.prefixes || null;
@@ -116,7 +116,7 @@ function (head, req) {
                     break;
             }
         }
-        callback(formattedTriple, annotations);
+        return formattedTriple;
     };
 
     /**
@@ -144,9 +144,9 @@ function (head, req) {
             }
         });
         tripleIterator(function (triple, annotations) {
-            formatTriple(triple, annotations, function (triple) {
-                send(triple.join(" ") + " .\n");
-            });
+            var formattedTriple;
+            formattedTriple = formatTriple(triple, annotations);
+            send(formattedTriple.join(" ") + " .\n");
         });
     });
 
@@ -169,26 +169,26 @@ function (head, req) {
         });
         firstSubject = true;
         tripleIterator(function (triple, annotations) {
-            formatTriple(triple, annotations, function (triple, annotations) {
-             // Abbreviate Turtle.
-                if (firstSubject === true || currentSubject !== triple[0]) {
-                 // Skip first period.
-                    if (firstSubject === true) {
-                        firstSubject = false;
-                    } else {
-                        send(" .\n");
-                    }
-                 // Send the full triple.
-                    send(triple.join(" "));
-                } else {
-                 // Send the abbreviated triple.
-                    send(" ;\n    " + triple[1] + " " + triple[2]);
-                }
-                currentSubject = triple[0];
-            }, {
+            var formattedTriple;
+            formattedTriple = formatTriple(triple, annotations, {
                 prefixes: prefixes,
                 typeLiterals: typeLiterals
             });
+         // Abbreviate Turtle.
+            if (firstSubject === true || currentSubject !== formattedTriple[0]) {
+             // Skip first period.
+                if (firstSubject === true) {
+                    firstSubject = false;
+                } else {
+                    send(" .\n");
+                }
+             // Send the full triple.
+                send(formattedTriple.join(" "));
+            } else {
+             // Send the abbreviated triple.
+                send(" ;\n    " + formattedTriple[1] + " " + formattedTriple[2]);
+            }
+            currentSubject = formattedTriple[0];
         });
      // Send the final period.
         send(" .");

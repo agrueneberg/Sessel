@@ -262,22 +262,30 @@ function (head, req) {
      * Output HTML.
      */
     provides("html", function () {
-        send("<DOCTYPE html>");
-        send("<meta charset=\"UTF-8\" />");
-        send("<title>" + req.info.db_name + " &ndash; Sessel</title>");
-        send("<ul>");
+        var firstSubject, currentSubject;
+        firstSubject = true;
+        send("<DOCTYPE html>\n");
+        send("<meta charset=\"UTF-8\" />\n");
+        send("<title>" + req.info.db_name + " &ndash; Sessel</title>\n");
         tripleIterator(function (triple, annotations) {
             var subject, predicate, object;
             subject = baseUri + triple[0];
             predicate = baseUri + "vocab/#" + triple[1];
             object = triple[2];
-            send("<li>");
-            send("<a href=\"" + subject + "\">&lt;" + subject + "&gt;</a> ");
-            send("<a href=\"" + predicate + "\">&lt;" + predicate + "&gt;</a> ");
-            send(object);
-            send("</li>");
+            if (firstSubject === true || currentSubject !== triple[0]) {
+             // Skip first period.
+                if (firstSubject === true) {
+                    firstSubject = false;
+                } else {
+                    send("</ul>\n");
+                }
+                send("<h2><a href=\"" + subject + "\">&lt;" + subject + "&gt;</a></h2>\n");
+                send("<ul>\n");
+            }
+            send("  <li><a href=\"" + predicate + "\">&lt;" + predicate + "&gt;</a>: " + object + "</li>\n");
+            currentSubject = triple[0];
         });
-        send("</ul>");
+        send("</ul>\n");
     });
 
 }

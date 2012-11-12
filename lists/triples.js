@@ -259,4 +259,26 @@ function (head, req) {
         send("</rdf:RDF>");
     });
 
+    /**
+     * Output HTML.
+     */
+    provides("html", function () {
+        send("<DOCTYPE html>");
+        send("<meta charset=\"UTF-8\" />");
+        send("<title>" + req.info.db_name + " &ndash; Sessel</title>");
+        send("<ul>");
+        tripleIterator(function (triple, annotations) {
+            var subject, predicate, object;
+            subject = baseUri + triple[0];
+            predicate = baseUri + "vocab/#" + triple[1];
+            object = triple[2];
+            send("<li>");
+            send("<a href=\"" + subject + "\">&lt;" + subject + "&gt;</a> ");
+            send("<a href=\"" + predicate + "\">&lt;" + predicate + "&gt;</a> ");
+            send(object);
+            send("</li>");
+        });
+        send("</ul>");
+    });
+
 }

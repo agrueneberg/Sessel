@@ -137,6 +137,14 @@ function (head, req) {
             formattedTriple = formatTriple(triple, annotations, {
                 typeLiterals: typeLiterals
             });
+            if (typeLiterals === false) {
+                switch (annotations.objectType) {
+                    case "number":
+                    case "boolean":
+                        formattedTriple[2] = "\"" + formattedTriple[2] + "\"";
+                        break;
+                }
+            }
             send(formattedTriple.join(" ") + " .\n");
         });
     });

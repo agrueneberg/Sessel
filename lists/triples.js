@@ -134,7 +134,9 @@ function (head, req) {
         });
         tripleIterator(function (triple, annotations) {
             var formattedTriple;
-            formattedTriple = formatTriple(triple, annotations);
+            formattedTriple = formatTriple(triple, annotations, {
+                typeLiterals: typeLiterals
+            });
             send(formattedTriple.join(" ") + " .\n");
         });
     });

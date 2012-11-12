@@ -9,7 +9,7 @@ function (head, req) {
         baseUri = req.query["base_uri"];
     } else {
      // "Host" is a mandatory header since HTTP/1.1.
-        baseUri = "http://" + req.headers["Host"] + "/" + req.info.db_name + "/";
+        baseUri = "http://" + req.headers["Host"] + "/" + req.info.db_name + "/_design/sessel/_rewrite/";
     }
 
     /**

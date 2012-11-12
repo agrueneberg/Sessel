@@ -28,6 +28,10 @@
         }
     },
     {
+        "from": "/:concept/:attachment",
+        "to": "../../:concept/:attachment"
+    },
+    {
         "from": "/:concept",
         "to": "_list/triples/triples",
         "query": {

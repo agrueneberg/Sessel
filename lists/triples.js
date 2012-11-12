@@ -1,6 +1,6 @@
 function (head, req) {
 
-    var baseUri, prefix, typeLiterals, tripleIterator, formatTriples, xmlEscape;
+    var baseUri, prefix, typeLiterals, tripleIterator, formatTriple, xmlEscape;
 
     /**
      * The base URI.
@@ -32,8 +32,7 @@ function (head, req) {
 
     /**
      * Iterate over triples.
-     * @param callback
-     * @return triple, annotations
+     * @param callback Function to apply to each triple.
      */
     tripleIterator = function (callback) {
         var row;
@@ -43,82 +42,81 @@ function (head, req) {
     };
 
     /**
-     * Format triples and return each one separately.
+     * Format triple.
+     * @param triple
+     * @param annotations
      * @param callback
      * @param [opts]
      *        - prefixes Table of prefixes to build QNames.
      *        - typeLiterals True if literals should be typed.
-     * @return Formatted triple
      */
-    formatTriples = function (callback, opts) {
-        tripleIterator(function (triple, annotations) {
-            var prefixes, typeLiterals, formattedTriple;
-            opts = opts || {};
-            prefixes = opts.prefixes || null;
-            typeLiterals = opts.typeLiterals || false;
-            formattedTriple = [];
-            if (prefixes !== null && prefixes[baseUri] !== undefined) {
-             // Use QNames if the URI can be resolved to a prefix and the local name does
-             // not start with a number (this is an XML thing after all). We can assume that
-             // triples[0] and triples[1] are strings.
-                if (triple[0].charAt(0).match(/\d/) === null) {
-                    formattedTriple[0] = prefixes[baseUri] + ":" + triple[0];
-                } else {
-                    formattedTriple[0] = "<" + baseUri + triple[0] + ">";
-                }
-                if (triple[1].charAt(0).match(/\d/) === null) {
-                    formattedTriple[1] = prefixes[baseUri + "vocab/#"] + ":" + triple[1];
-                } else {
-                    formattedTriple[1] = "<" + baseUri + "vocab/#" + triple[1] + ">";
-                }
+    formatTriple = function (triple, annotations, callback, opts) {
+        var prefixes, typeLiterals, formattedTriple;
+        opts = opts || {};
+        prefixes = opts.prefixes || null;
+        typeLiterals = opts.typeLiterals || false;
+        formattedTriple = [];
+        if (prefixes !== null && prefixes[baseUri] !== undefined) {
+         // Use QNames if the URI can be resolved to a prefix and the local name does
+         // not start with a number (this is an XML thing after all). We can assume that
+         // triples[0] and triples[1] are strings.
+            if (triple[0].charAt(0).match(/\d/) === null) {
+                formattedTriple[0] = prefixes[baseUri] + ":" + triple[0];
             } else {
-             // Use a URI if no suitable prefix can be found, or the local part of the QName
-             // starts with a number.
                 formattedTriple[0] = "<" + baseUri + triple[0] + ">";
+            }
+            if (triple[1].charAt(0).match(/\d/) === null) {
+                formattedTriple[1] = prefixes[baseUri + "vocab/#"] + ":" + triple[1];
+            } else {
                 formattedTriple[1] = "<" + baseUri + "vocab/#" + triple[1] + ">";
             }
+        } else {
+         // Use a URI if no suitable prefix can be found, or the local part of the QName
+         // starts with a number.
+            formattedTriple[0] = "<" + baseUri + triple[0] + ">";
+            formattedTriple[1] = "<" + baseUri + "vocab/#" + triple[1] + ">";
+        }
+        switch (annotations.objectType) {
+            case "object":
+            case "array":
+            case "null":
+             // Escape quotation marks.
+                formattedTriple[2] = "\"" + triple[2].replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\"";
+                break;
+            case "_attachment":
+             // Expand URLs to attachments.
+                formattedTriple[2] = "\"" + baseUri + triple[0] + "/" + triple[2] + "\"";
+                break;
+            default:
+                formattedTriple[2] = triple[2];
+                break;
+        }
+     // Type literals.
+        if (typeLiterals === true) {
             switch (annotations.objectType) {
+                case "string":
                 case "object":
                 case "array":
                 case "null":
-                 // Escape quotation marks.
-                    formattedTriple[2] = "\"" + triple[2].replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\"";
-                    break;
                 case "_attachment":
-                 // Expand URLs to attachments.
-                    formattedTriple[2] = "\"" + baseUri + triple[0] + "/" + triple[2] + "\"";
+                    formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#string>";
                     break;
-                default:
-                    formattedTriple[2] = triple[2];
+                case "number":
+                 // Wrap number into quotation marks first.
+                    formattedTriple[2] = "\"" + formattedTriple[2] + "\"";
+                    if (triple[2] % 1 === 0) {
+                        formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#integer>";
+                    } else {
+                        formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#double>";
+                    }
+                    break;
+                case "boolean":
+                    formattedTriple[2] = "\"" + formattedTriple[2] + "\"";
+                    formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#boolean>";
                     break;
             }
-         // Type literals.
-            if (typeLiterals === true) {
-                switch (annotations.objectType) {
-                    case "string":
-                    case "object":
-                    case "array":
-                    case "null":
-                    case "_attachment":
-                        formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#string>";
-                        break;
-                    case "number":
-                     // Wrap number into quotation marks first.
-                        formattedTriple[2] = "\"" + formattedTriple[2] + "\"";
-                        if (triple[2] % 1 === 0) {
-                            formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#integer>";
-                        } else {
-                            formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#double>";
-                        }
-                        break;
-                    case "boolean":
-                        formattedTriple[2] = "\"" + formattedTriple[2] + "\"";
-                        formattedTriple[2] += "^^<http://www.w3.org/2001/XMLSchema#boolean>";
-                        break;
-                }
-            }
-            callback(formattedTriple, annotations);
-        });
+        }
+        callback(formattedTriple, annotations);
     };
 
     /**
@@ -145,8 +143,10 @@ function (head, req) {
                 "Content-Disposition": "attachment; filename=" + req.info.db_name + ".nt"
             }
         });
-        formatTriples(function (triple) {
-            send(triple.join(" ") + " .\n");
+        tripleIterator(function (triple, annotations) {
+            formatTriple(triple, annotations, function (triple) {
+                send(triple.join(" ") + " .\n");
+            });
         });
     });
 
@@ -168,25 +168,27 @@ function (head, req) {
             send("@prefix " + prefixes[uri] + ": <" + uri + "> .\n");
         });
         firstSubject = true;
-        formatTriples(function (triple, annotations) {
-         // Abbreviate Turtle.
-            if (firstSubject === true || currentSubject !== triple[0]) {
-             // Skip first period.
-                if (firstSubject === true) {
-                    firstSubject = false;
+        tripleIterator(function (triple, annotations) {
+            formatTriple(triple, annotations, function (triple, annotations) {
+             // Abbreviate Turtle.
+                if (firstSubject === true || currentSubject !== triple[0]) {
+                 // Skip first period.
+                    if (firstSubject === true) {
+                        firstSubject = false;
+                    } else {
+                        send(" .\n");
+                    }
+                 // Send the full triple.
+                    send(triple.join(" "));
                 } else {
-                    send(" .\n");
+                 // Send the abbreviated triple.
+                    send(" ;\n    " + triple[1] + " " + triple[2]);
                 }
-             // Send the full triple.
-                send(triple.join(" "));
-            } else {
-             // Send the abbreviated triple.
-                send(" ;\n    " + triple[1] + " " + triple[2]);
-            }
-            currentSubject = triple[0];
-        }, {
-            prefixes: prefixes,
-            typeLiterals: typeLiterals
+                currentSubject = triple[0];
+            }, {
+                prefixes: prefixes,
+                typeLiterals: typeLiterals
+            });
         });
      // Send the final period.
         send(" .");

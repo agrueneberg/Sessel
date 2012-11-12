@@ -1,4 +1,4 @@
-function (head, head) {
+function (head, req) {
     var row;
     provides("html", function () {
         send("<h1>Vocabulary</h1>");

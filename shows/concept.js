@@ -1,4 +1,4 @@
-function (doc, head) {
+function (doc, req) {
     var html;
     html = "<h1>" + doc._id + "</h1>";
     html += "<h2>Properties</h2>";

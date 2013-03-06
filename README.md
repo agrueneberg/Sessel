@@ -7,7 +7,7 @@ Sessel is a CouchApp for [CouchDB](http://couchdb.apache.org) that generates RDF
 Installation
 ------------
 
-Sessel is designed to be replicated or pushed into any existing CouchDB database. There is more than one way to install it.
+Sessel is designed to be replicated or pushed into any existing CouchDB database that stores data that you want to export as RDF. There is more than one way to install it.
 
 ### Install Sessel using [CouchApp](http://couchapp.org) or similar tools
 

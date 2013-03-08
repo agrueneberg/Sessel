@@ -58,8 +58,7 @@ SPARQL Endpoint
 ---------------
 
 Sessel bundles Antonio Garrote's fantastic [rdfstore-js](https://github.com/antoniogarrote/rdfstore-js), an RDF store with SPARQL support written entirely in JavaScript. A graphical query interface can be accessed at `http://<your_host>/<your_db>/_design/sessel/sparql.html`.
-
-Alternatively, a standalone SPARQL processors such as [ARQ](http://jena.sourceforge.net/ARQ/) can be used to import the generated triples through the export interface:
+Unfortunately, modern browsers only let [rdfstore-js](https://github.com/antoniogarrote/rdfstore-js) store 5 MB worth of triples. If your data set is large it is recommended to use a standalone SPARQL processor such as [ARQ](http://jena.sourceforge.net/ARQ/) to import the generated triples by pointing it to the export interface:
 
     SELECT *
     FROM <http://<your_host>/<your_db>/_design/sessel/_rewrite/export.ttl>

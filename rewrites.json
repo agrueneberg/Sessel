@@ -21,6 +21,13 @@
         }
     },
     {
+        "from": "/export.html",
+        "to": "_list/triples/triples",
+        "query": {
+            "format": "html"
+        }
+    },
+    {
         "from": "/vocab",
         "to": "_list/vocab/vocab",
         "query": {

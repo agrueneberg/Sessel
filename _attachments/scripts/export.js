@@ -10,4 +10,7 @@ $(function () {
         form.submit();
         return false;
     });
+    $(".export-uri").each(function (i, el) {
+        $(el).text(baseUri + $(el).text());
+    });
 });

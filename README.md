@@ -7,18 +7,20 @@ Sessel is a CouchApp for [CouchDB](http://couchdb.apache.org) that generates RDF
 Installation
 ------------
 
-Sessel is designed to be replicated or pushed into any existing CouchDB database that stores data that you want to export as RDF. There is more than one way to install it.
-
-### Install Sessel using [CouchApp](http://couchapp.org) or similar tools
-
 Clone this repository and use [CouchApp](http://couchapp.org) to push Sessel to `<your_host>/<your_db>`:
 
-    git clone git://github.com/agrueneberg/Sessel.git
+    git clone https://github.com/agrueneberg/Sessel.git
     couchapp push Sessel/ http://<your_host>/<your_db>
 
-### Install Sessel using replication
+Alternatively, replicate [an existing deployment of Sessel](https://couchdb.gutpassfilter.de/sessel/) to `<your_host>/<your_db>` using `curl`:
 
-Replicate an existing deployment of Sessel to `<your_host>/<your_db`.
+    curl\
+      -X POST\
+      -H "Content-Type:application/json"\
+      -d "{\"source\":\"https://couchdb.gutpassfilter.de/sessel\",\
+           \"target\":\"http://<your_host>/<your_db>\",\
+           \"filter\":\"vacuum/rw\"}"\
+      http://localhost:5984/_replicate
 
 
 Export

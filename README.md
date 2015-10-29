@@ -1,6 +1,8 @@
 Sessel
 ======
 
+[![Project Status: Inactive - The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](http://www.repostatus.org/badges/0.1.0/inactive.svg)](http://www.repostatus.org/#inactive)
+
 Sessel is a CouchApp for [CouchDB](http://couchdb.apache.org) that generates RDF triples from JSON documents, which then in turn can be exported to various serialization formats, or queried through a SPARQL endpoint.
 
 
